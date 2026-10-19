@@ -1,0 +1,399 @@
+/* Editor Styles */
+.editor-container {
+    margin-bottom: 2rem;
+}
+
+.ql-editor {
+    min-height: 300px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    padding: 1.5rem;
+}
+
+.ql-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+}
+
+/* Image Layout Styles */
+.ql-editor img.quill-image-float-left {
+    float: left;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    max-width: 50%;
+}
+
+.ql-editor img.quill-image-float-right {
+    float: right;
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+    max-width: 50%;
+}
+
+.ql-editor img.quill-image-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 70%;
+}
+
+.ql-editor img.quill-image-full-width {
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.ql-editor p {
+    margin-bottom: 1rem;
+}
+
+.ql-editor blockquote {
+    border-left: 4px solid #e2e8f0;
+    padding-left: 1rem;
+    color: #4a5568;
+    font-style: italic;
+    margin: 1.5rem 0;
+}
+
+.ql-editor ul, .ql-editor ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Toolbar Styles */
+.ql-toolbar {
+    border-radius: 8px 8px 0 0;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Toolbar Button Styles */
+.ql-toolbar button {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.ql-toolbar button:hover {
+    background-color: #f1f5f9;
+}
+
+.ql-toolbar button.ql-active {
+    background-color: #e2e8f0;
+}
+
+.ql-toolbar .ql-picker {
+    height: 28px;
+}
+
+/* Image Layout and Size Picker Styles */
+.ql-picker.ql-image-layout, .ql-picker.ql-size {
+    width: auto;
+    min-width: 120px;
+}
+
+.ql-picker.ql-image-layout .ql-picker-label, .ql-picker.ql-size .ql-picker-label {
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.ql-picker.ql-image-layout .ql-picker-options, .ql-picker.ql-size .ql-picker-options {
+    min-width: 150px;
+}
+
+.ql-container {
+    border-radius: 0 0 8px 8px;
+    background-color: #f9fafb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    border-top: none;
+}
+
+.ql-tooltip {
+    z-index: 10;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+}
+
+/* Custom Toolbar Labels */
+.ql-image-size .ql-picker-item[data-value="small"]::before {
+    content: 'Nhỏ';
+}
+
+.ql-image-size .ql-picker-item[data-value="medium"]::before {
+    content: 'Trung bình';
+}
+
+.ql-image-size .ql-picker-item[data-value="large"]::before {
+    content: 'Lớn';
+}
+
+.ql-image-align .ql-picker-item[data-value="left"]::before {
+    content: 'Trái';
+}
+
+.ql-image-align .ql-picker-item[data-value="center"]::before {
+    content: 'Giữa';
+}
+
+.ql-image-align .ql-picker-item[data-value="right"]::before {
+    content: 'Phải';
+}
+
+/* Custom Image Layout Labels */
+.ql-picker.ql-image-layout .ql-picker-label::before {
+    content: 'Bố cục ảnh';
+}
+
+.ql-picker.ql-image-layout .ql-picker-item[data-value="float-left"]::before {
+    content: 'Nổi trái';
+}
+
+.ql-picker.ql-image-layout .ql-picker-item[data-value="float-right"]::before {
+    content: 'Nổi phải';
+}
+
+.ql-picker.ql-image-layout .ql-picker-item[data-value="center"]::before {
+    content: 'Căn giữa';
+}
+
+.ql-picker.ql-image-layout .ql-picker-item[data-value="full-width"]::before {
+    content: 'Toàn màn hình';
+}
+
+/* Custom Size Labels */
+.ql-picker.ql-size .ql-picker-label::before {
+    content: 'Kích thước';
+}
+
+.ql-picker.ql-size .ql-picker-item[data-value="small"]::before {
+    content: 'Nhỏ (25%)';
+}
+
+.ql-picker.ql-size .ql-picker-item[data-value="false"]::before {
+    content: 'Thường (50%)';
+}
+
+.ql-picker.ql-size .ql-picker-item[data-value="large"]::before {
+    content: 'Lớn (75%)';
+}
+
+.ql-picker.ql-size .ql-picker-item[data-value="huge"]::before {
+    content: 'Rất lớn (100%)';
+}
+
+.ql-custom-placeholder[data-value="intro"]::before {
+    content: url('https://cdn-icons-png.flaticon.com/512/25/25314.png');
+    width: 16px;
+    height: 16px;
+}
+
+/* Image sizing classes */
+.ql-editor .ql-image-size-small {
+    max-width: 25%;
+    height: auto;
+}
+
+.ql-editor .ql-image-size-medium {
+    max-width: 50%;
+    height: auto;
+}
+
+.ql-editor .ql-image-size-large {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Image alignment classes */
+.ql-editor .ql-image-align-left {
+    float: left;
+    margin: 0 1rem 0.5rem 0;
+}
+
+.ql-editor .ql-image-align-center {
+    display: block;
+    margin: 1rem auto;
+    float: none;
+    clear: both;
+}
+
+.ql-editor .ql-image-align-right {
+    float: right;
+    margin: 0 0 0.5rem 1rem;
+}
+
+/* Preview Styles */
+.preview-article {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.8;
+    color: #333;
+}
+
+/* Preview Heading Styles */
+.preview-article h1, .preview-article h2, .preview-article h3, 
+.preview-article h4, .preview-article h5, .preview-article h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #1a202c;
+    line-height: 1.3;
+}
+
+.preview-article h1 {
+    font-size: 2.25rem; /* 36px */
+}
+
+.preview-article h2 {
+    font-size: 1.875rem; /* 30px */
+}
+
+.preview-article h3 {
+    font-size: 1.5rem; /* 24px */
+}
+
+.preview-article h4 {
+    font-size: 1.25rem; /* 20px */
+}
+
+.preview-article h5 {
+    font-size: 1.125rem; /* 18px */
+}
+
+.preview-article h6 {
+    font-size: 1rem; /* 16px */
+}
+
+.preview-article img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Preview Image Layout Styles */
+.preview-article img.quill-image-float-left {
+    float: left;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    max-width: 50%;
+}
+
+.preview-article img.quill-image-float-right {
+    float: right;
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+    max-width: 50%;
+}
+
+.preview-article img.quill-image-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 70%;
+}
+
+.preview-article img.quill-image-full-width {
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.preview-article blockquote {
+    background-color: #f8fafc;
+    border-left: 4px solid #3b82f6;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #4b5563;
+}
+
+.preview-article pre {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+.preview-article code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Prose Styles for Tailwind Typography */
+.prose h1, .prose h2, .prose h3, 
+.prose h4, .prose h5, .prose h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #1a202c;
+    line-height: 1.3;
+}
+
+.prose h1 {
+    font-size: 2.25rem; /* 36px */
+}
+
+.prose h2 {
+    font-size: 1.875rem; /* 30px */
+}
+
+.prose h3 {
+    font-size: 1.5rem; /* 24px */
+}
+
+.prose h4 {
+    font-size: 1.25rem; /* 20px */
+}
+
+.prose h5 {
+    font-size: 1.125rem; /* 18px */
+}
+
+.prose h6 {
+    font-size: 1rem; /* 16px */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .ql-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ql-editor {
+        min-height: 200px;
+        padding: 1rem;
+    }
+}

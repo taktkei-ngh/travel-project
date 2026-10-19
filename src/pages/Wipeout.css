@@ -1,0 +1,78 @@
+/* Wipeout404.css */
+.glitch-text {
+    position: relative;
+    animation: glitch 1s infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    color: yellow;
+    clip: rect(0, 900px, 0, 0);
+}
+
+.glitch-text::before {
+    animation: glitchTop 1s infinite linear;
+    color: #f00;
+}
+
+.glitch-text::after {
+    animation: glitchBottom 1s infinite linear;
+    color: #0ff;
+}
+
+@keyframes glitch {
+    0% {
+        transform: none;
+    }
+    20% {
+        transform: translate(-2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(2px, -2px);
+    }
+    100% {
+        transform: none;
+    }
+}
+
+@keyframes glitchTop {
+    0% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    10% {
+        clip: rect(0, 9999px, 5px, 0);
+    }
+    20% {
+        clip: rect(0, 9999px, 10px, 0);
+    }
+    100% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+}
+
+@keyframes glitchBottom {
+    0% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    10% {
+        clip: rect(10px, 9999px, 15px, 0);
+    }
+    20% {
+        clip: rect(20px, 9999px, 25px, 0);
+    }
+    100% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+}
