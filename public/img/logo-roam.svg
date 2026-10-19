@@ -1,0 +1,12 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="72" viewBox="0 0 240 72">
+  <rect width="240" height="72" fill="white" fill-opacity="0"/>
+  <g transform="translate(8 8)">
+    <circle cx="28" cy="28" r="24" fill="none" stroke="#D97706" stroke-width="3"/>
+    <path d="M28 8 L34 28 L28 48 L22 28 Z" fill="#172554"/>
+    <path d="M28 8 L34 28 L28 25 Z" fill="#D97706"/>
+    <circle cx="28" cy="28" r="3" fill="#D97706"/>
+  </g>
+  <text x="70" y="38" font-family="Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="3" fill="#172554">ROAM</text>
+  <text x="72" y="55" font-family="Arial, sans-serif" font-size="9" font-weight="600" letter-spacing="2" fill="#D97706">TRAVEL &amp; DISCOVER</text>
+</svg>

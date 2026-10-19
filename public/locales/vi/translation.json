@@ -16,9 +16,9 @@
     "title14": "ĐĂNG NHẬP",
     "title15": "ĐĂNG KÝ"
   },
-  "welcome": "Chào mừng bạn đến với công ty du lịch Pacific",
+  "welcome": "Chào mừng bạn đến với công ty du lịch ROAM",
   "text": {
-    "t1": "Chúng tôi là công ty du lịch Pacific",
+    "t1": "Chúng tôi là công ty du lịch ROAM",
     "t2": "Du lịch đến mọi nơi trên thế giới mà không phải đi lòng vòng"
   },
   "message": {
@@ -26,7 +26,7 @@
     "mes2": "Đăng xuất thất bại:"
   },
   "index": {
-    "ind1": "Cùng khám phá với Pacific",
+    "ind1": "Cùng khám phá với ROAM",
     "ind2": "Những điểm đến phổ biến",
     "ind3": "Lựa chọn điểm đến của chính mình",
     "ind4": "Đặt chân tới địa điểm mới",
@@ -39,7 +39,7 @@
   },
   "aboutUs": {
     "ab1": "Về chúng tôi",
-    "ab2": "Hãy biến chuyến tham quan của bạn trở nên đáng nhớ và an toàn với Pacific Tour.",
+    "ab2": "Hãy biến chuyến tham quan của bạn trở nên đáng nhớ và an toàn với ROAM.",
     "ab3": "Chúng tôi cung cấp dịch vụ du lịch chất lượng cao, giúp bạn khám phá những điểm đến tuyệt vời nhất trên thế giới.",
     "ab4": "Đặt tour ngay!"
   },
@@ -135,7 +135,7 @@
     "ti18": "QTSC 9 Building, Đ. Tô Ký, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh",
     "ti19": "Điện thoại:",
     "ti20": "Hãy để mỗi chuyến đi là một hành trình trải nghiệm, nơi bạn không chỉ khám phá cảnh đẹp mà còn tìm thấy chính mình giữa những nền văn hóa đa dạng và con người ấm áp.",
-    "ti21": "Bản quyền © 2025. Tạo bởi Nhóm Musketeers."
+    "ti21": "Bản quyền © 2025. Tạo bởi ROAM KEI."
   },
   "about": {
     "ti1": "Hoạt động phiêu lưu",
@@ -153,7 +153,7 @@
     "ti13": "Cắm trại",
     "ti14": "Tận hưởng không khí thiên nhiên với những chuyến cắm trại thú vị.",
     "ti15": "Dịch vụ",
-    "ti16": "Tận hưởng các gói dịch vụ tuyệt vời và cao cấp tại Pacific.",
+    "ti16": "Tận hưởng các gói dịch vụ tuyệt vời và cao cấp tại ROAM",
     "ti17": "Một trải nghiệm tuyệt vời! Dịch vụ chuyên nghiệp, địa điểm đẹp, chắc chắn tôi sẽ quay lại!",
     "ti18": "Chuyến đi này đã giúp tôi khám phá nhiều điều mới lạ và thú vị. Cảm ơn đội ngũ hướng dẫn!",
     "ti19": "Mọi thứ đều hoàn hảo từ khách sạn đến lịch trình. Tôi rất hài lòng!",
@@ -166,7 +166,7 @@
     "ti26": "Sắp xếp chuyến đi",
     "ti27": "Hướng dẫn viên riêng",
     "ti28": "Quản lý địa điểm",
-    "ti29": "Chào mừng đến với Pacific",
+    "ti29": "Chào mừng đến với ROAM",
     "ti30": "Hãy bắt đầu hành trình khám phá quê hương",
     "ti31": "Một con sông nhỏ uốn lượn qua ngôi làng này, mang đến nguồn nước trong lành và cuộc sống êm đềm. Đây là một miền đất thanh bình, nơi bạn có thể tận hưởng những món ăn đậm chất quê hương trong khung cảnh yên tĩnh và thoải mái.",
     "ti32": "Xa xa, phía sau những dãy núi trùng điệp, có một vùng đất nơi các câu chuyện cổ tích trở thành hiện thực. Người dân ở đó sống chậm rãi và bình yên, tại những làng chài ven biển, nơi dòng sông đổ ra biển Đông bao la, mang theo hy vọng và bình an.",
@@ -176,7 +176,7 @@
     "ti36": "Chúng tôi mang đến những trải nghiệm du lịch tuyệt vời, giúp bạn khám phá những vùng đất mới, tận hưởng những khoảnh khắc khó quên, và đảm bảo chuyến đi của bạn luôn an toàn.",
     "ti37": "Nhận Xét",
     "ti38": "Phản Hồi Của Khách Hàng",
-    "ti39": "Chúng Tôi Là Pacific, Một Đại Lý Du Lịch",
+    "ti39": "Chúng Tôi Là ROAM, Một Đại Lý Du Lịch",
     "ti40": "Chúng tôi có thể quản lý ước mơ của bạn, xây dựng một con đường đi đến khắp nơi trên thế giới.",
     "ti41": "Yêu Cầu Báo Giá"
   },
@@ -191,7 +191,7 @@
     "ti8": "Chủ đề",
     "ti9": "Tin nhắn",
     "ti10": "Gửi tin nhắn",
-    "ti11": "Chúng Tôi Là Pacific, Một Đại Lý Du Lịch",
+    "ti11": "Chúng Tôi Là ROAM, Một Đại Lý Du Lịch",
     "ti12": "Chúng tôi có thể quản lý ước mơ của bạn, xây dựng một con đường đi đến khắp nơi trên thế giới.",
     "ti13": "Yêu Cầu Báo Giá"
   },

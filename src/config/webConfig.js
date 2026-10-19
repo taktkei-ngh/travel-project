@@ -5,9 +5,9 @@ const webConfig = {
     banner1: '/img/Pages/TourLists/bg.jpg',
     banner2: '/img/carousel-1.jpg',
     banner3: '/img/carousel-2.jpg',
-    defaultLogo: '/img/logo.jpg',
+    defaultLogo: '/img/logo-roam.svg',
     defaultTour: '/img/user_null.png',
-    defaultTitle: 'ROAM - Discover Your Next Journey',
+defaultTitle: 'ROAM - Discover Your Next Journey | By Kei',
     defaultQrCode: '103-RmMCZ1D3qJujRSOu02I65_gNdgIFW',
     getCurrency: (price) => {
         return new Intl.NumberFormat('vi-VN', {

@@ -321,7 +321,7 @@ const AdminHome = () => {
 
 	const footer = (
 		<Tooltip title={'ĐƯỢC TẠO VÀ THIẾT KẾ BỞI TUNZ - TN1608'}>
-			Pacific ©2025 Created by Pacific Team
+			ROAM ©2026 Created by  ROAM KEII
 		</Tooltip>
 	);
 

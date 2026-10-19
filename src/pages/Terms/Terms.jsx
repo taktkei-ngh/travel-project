@@ -5,7 +5,7 @@ export const Terms = () => {
             <div className={'section1 space-y-2 gap-4 mt-4'}>
                 <h4 className={'text-lg font-semibold px-12'}>1. Tổng quan</h4>
                 <p className={'text-md'}>
-                    Pacific (“chúng tôi”) cam kết tôn trọng quyền riêng tư của Quý khách hàng. Chúng tôi cố gắng cung
+                ROAM (“chúng tôi”) cam kết tôn trọng quyền riêng tư của Quý khách hàng. Chúng tôi cố gắng cung
                     cấp trải nghiệm người dùng an toàn, bảo mật. Chính sách bảo vệ dữ liệu cá nhân (sau đây gọi là
                     “Chính sách”) nêu rõ việc thu thập, xử lý và sử dụng dữ liệu cá nhân trực tuyến áp dụng cho tất cả
                     những trang web của chúng tôi (trừ khi có một tuyên bố riêng về quyền riêng tư áp dụng cụ thể).
@@ -21,22 +21,22 @@ export const Terms = () => {
                     Quý khách hàng như mô tả trong Chính sách này, xin vui lòng không sử dụng dịch vụ của chúng tôi hoặc
                     truy cập các trang web của chúng tôi.</p>
                 <p>Dữ liệu cá nhân của Quý khách hàng sẽ được lưu trữ và xử lý toàn bộ hoặc một phần tại Việt Nam và các
-                    quốc gia khác trên thế giới. Nếu Quý khách hàng truy cập trang web của Pacific từ các quốc gia
+                    quốc gia khác trên thế giới. Nếu Quý khách hàng truy cập trang web của ROAM từ các quốc gia
                     khác ngoài Việt Nam, việc Quý khách hàng sử dụng trang web này đồng nghĩa với việc Quý khách hàng
                     đồng ý chuyển dữ liệu của Quý khách hàng ra khỏi quốc gia của Quý khách hàng và đến Việt Nam.</p>
                 <p>Lưu ý: Các trang web của chúng tôi có chứa liên kết đến các trang web khác mà chúng tôi không kiểm
-                    soát. Pacific không chịu trách nhiệm về chính sách quyền riêng tư hoặc cách hoạt động của các
-                    trang web khác mà Quý khách hàng chọn kết nối từ một trang web của Pacific. Chúng tôi khuyến khích
+                    soát. ROAM không chịu trách nhiệm về chính sách quyền riêng tư hoặc cách hoạt động của các
+                    trang web khác mà Quý khách hàng chọn kết nối từ một trang web của ROAM. Chúng tôi khuyến khích
                     Quý khách hàng xem xét các chính sách quyền riêng tư của những trang web khác đó để Quý khách hàng
                     có thể hiểu cách họ xử lý, sử dụng và chia sẻ dữ liệu cá nhân của Quý khách hàng.</p>
             </div>
             <div className={'section2 space-y-4 gap-4 mt-4'}>
                 <h4 className={'text-lg font-semibold px-12'}>2. Các loại dữ liệu cá nhân và cách thu thập</h4>
                 <div className={'text-md space-y-4'}>
-                    <p>Quý khách hàng hiểu, xác nhận và đồng ý rằng Pacific được phép xử lý dữ
+                    <p>Quý khách hàng hiểu, xác nhận và đồng ý rằng ROAM được phép xử lý dữ
                         liệu cá nhân của Quý khách hàng, người được Quý khách hàng ủy quyền và các bên khác có liên quan
                         của
-                        Quý khách hàng, nếu cung cấp hoặc liên hệ với Pacific, bao gồm các dữ liệu cá nhân được cập
+                        Quý khách hàng, nếu cung cấp hoặc liên hệ với ROAM, bao gồm các dữ liệu cá nhân được cập
                         nhật,
                         sửa đổi, bổ sung tại từng thời điểm, trong đó:</p>
                     <li className={'ms-12'}>
@@ -53,7 +53,7 @@ export const Terms = () => {
                     </li>
                     <p>Quý khách hàng cũng đồng ý và xác nhận rằng tất cả dữ liệu cá nhân và thông tin mà Quý khách hàng
                         cung cấp, đăng hoặc tải lên trên trang web của chúng tôi là chính xác và hợp pháp, và Quý khách
-                        hàng không sử dụng dữ liệu và thông tin như vậy cho bất kỳ mục đích bất hợp pháp nào. Pacific,
+                        hàng không sử dụng dữ liệu và thông tin như vậy cho bất kỳ mục đích bất hợp pháp nào. ROAM,
                         hoạt động như một nền tảng trung gian, sẽ không cung cấp bất kỳ bảo đảm nào và không chịu trách
                         nhiệm cho bất kỳ bên nào liên quan đến vấn đề này.</p>
                     <p>
@@ -86,7 +86,7 @@ export const Terms = () => {
                     <li>
                         Nếu Quý khách hàng có bất kỳ câu hỏi hoặc yêu cầu nào về Chính sách bảo vệ dữ liệu cá nhân, vui
                         lòng liên hệ với chúng tôi qua email: <span className={'text-red-500'}>
-                        <a href={'mailto:pacific.musketeers.tni@gmail.com'}>Gửi mail cho chúng tôi</a>
+                        <a href={'mailto:roam.musketeers.tni@gmail.com'}>Gửi mail cho chúng tôi</a>
                     </span>
                     </li>
                 </p>
