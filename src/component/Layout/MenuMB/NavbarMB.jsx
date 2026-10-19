@@ -262,7 +262,7 @@ const NavbarMB = () => {
                         <img
                             className="h-10 w-auto object-cover"
                             src={config.webConfig.defaultLogo}
-                            alt="Pacific Travel"
+                            alt="ROAM Travel"
                         />
                     </Link>
                 }

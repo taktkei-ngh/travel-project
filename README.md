@@ -17,3 +17,4 @@ Sau khi Pull về lần đầu,
 Commit các file đã thay đổi
 chọn branch để push -> "FrontEnd"
 rồi push lên branch frontend
+by Kei

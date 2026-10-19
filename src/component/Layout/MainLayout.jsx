@@ -11,7 +11,7 @@ const MainLayout = ({ children }) => {
     const [chatOpen, setChatOpen] = useState(false);
 
     useEffect(() => {
-        document.title = 'Pacific Travel';
+        document.title = 'ROAM - Discover Your Next Journey';
     }, []);
 
     return (

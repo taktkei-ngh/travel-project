@@ -18,7 +18,7 @@ function Home() {
     const { t } = useTranslation();
 
     useEffect(() => {
-        document.title = 'Pacific - Hành trình khám phá mọi nơi.';
+        document.title = 'ROAM - Discover Your Next Journey';
     }, []);
 
     return (

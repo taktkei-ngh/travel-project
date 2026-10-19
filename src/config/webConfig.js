@@ -7,7 +7,7 @@ const webConfig = {
     banner3: '/img/carousel-2.jpg',
     defaultLogo: '/img/logo.jpg',
     defaultTour: '/img/user_null.png',
-    defaultTitle: 'Pacific - Hành trình khám phá mọi nơi',
+    defaultTitle: 'ROAM - Discover Your Next Journey',
     defaultQrCode: '103-RmMCZ1D3qJujRSOu02I65_gNdgIFW',
     getCurrency: (price) => {
         return new Intl.NumberFormat('vi-VN', {
