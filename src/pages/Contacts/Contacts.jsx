@@ -78,7 +78,7 @@ const Contacts = () => {
                                 icon: 'fa-paper-plane',
                                 color: 'text-red-500',
                                 title: 'Email',
-                                content: 'pacific.musketeers.tni@gmail.com',
+                                content: 'kei.musketeers.tni@gmail.com',
                                 link: 'mailto:fptpoly@fpt.vn.com',
                             },
                             {

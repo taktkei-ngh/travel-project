@@ -11,54 +11,54 @@ const Vacations = () => {
     const { t } = useTranslation();
     const [swiper, setSwiper] = useState(null);
     const [hoveredIndex, setHoveredIndex] = useState(null);
-
     const carouselItems = [
-        {
-            title: 'Pháp',
-            imageUrl: config.imageConfig.getImage('18sjM8FDlALE2hixi1p_GsVuTsesfkkME'),
-            hoverImageUrl: config.imageConfig.getImage('1GIQYwOWmMcQWbxKtypebz06CSZGNUtup'),
-        },
-        {
-            title: 'Mỹ',
-            imageUrl: config.imageConfig.getImage('1wHeycggR1kB8kpTOavzNICZGKYJbbGR8'),
-            hoverImageUrl: config.imageConfig.getImage('10rgIQOXLVlfWEXm_NAFS3QMJyryosfuK'),
-        },
-        {
-            title: 'Nhật Bản - TOKYO',
-            imageUrl: config.imageConfig.getImage('1FIw6uiJePA7bSmeg7UiqbFGkPICRRZRP'),
-            hoverImageUrl: config.imageConfig.getImage('1RWt4o2YRz5qabpA98uJfuwi8DlUU4089'),
-        },
-        {
-            title: 'Anh Quốc',
-            imageUrl: config.imageConfig.getImage('1mbWseV_P9e6laA9xqgo7JNAriwWLjGs7'),
-            hoverImageUrl: config.imageConfig.getImage('1cxpNMtnsY0LUUrJj9qzE7oYQXmmP3iuu'),
-        },
-        {
-            title: 'Hàn Quốc',
-            imageUrl: config.imageConfig.getImage('13MVHCyewA9xR9WEXg6pdL-qgDkI-cW5w'),
-            hoverImageUrl: config.imageConfig.getImage('1wMFgwh7CEnmaulzN6wWcvYbhfMK4ZzW3'),
-        },
-        {
-            title: 'Mexico',
-            imageUrl: config.imageConfig.getImage('1_P2mBUnhQzk862YBW3QvHH-5wmRAfNIb'),
-            hoverImageUrl: config.imageConfig.getImage('1nQOT1raQxcrjIjKSN0cYsBNRZKjL74fJ'),
-        },
-        {
-            title: 'Nhật Bản - OSAKA',
-            imageUrl: config.imageConfig.getImage('1IJTeahSvtheCYBu7V7CRmpdcu7k9M6I8'),
-            hoverImageUrl: config.imageConfig.getImage('1jBHq2iI1dJbhDm_lk84Q5I06AKE9JfSA'),
-        },
-        {
-            title: 'Sao Hỏa',
-            imageUrl: config.imageConfig.getImage('1VS7ZwEj3CjKDSF6AINqxew3zd5Td0chu'),
-            hoverImageUrl: config.imageConfig.getImage('1A-2DQzrX6F0f4tR3zJIXMRu1FZl63J18'),
-        },
-        {
-            title: 'Sao Mộc',
-            imageUrl: config.imageConfig.getImage('1wfqlk8df4WWxjsGFRTbUupvrFKu9Yf3U'),
-            hoverImageUrl: config.imageConfig.getImage('1nSEqsUzQKmEG24Nf6CPvGIk2BNoeT6ki'),
-        },
-    ];
+    {
+        title: 'Pháp',
+        imageUrl: '/img/vacation/Paris.jpg',
+        hoverImageUrl: '/img/vacation/Paris.jpg',
+    },
+    {
+        title: 'Mỹ',
+        imageUrl: '/img/vacation/newyork.jpg',
+        hoverImageUrl: '/img/vacation/newyork.jpg',
+    },
+    {
+        title: 'Nhật Bản - TOKYO',
+        imageUrl: '/img/vacation/Tokyo.jpg',
+        hoverImageUrl: '/img/vacation/Tokyo.jpg',
+    },
+    {
+        title: 'Anh Quốc',
+        imageUrl: '/img/vacation/England.jpg',
+        hoverImageUrl: '/img/vacation/England.jpg',
+    },
+    {
+        title: 'Hàn Quốc',
+        imageUrl: '/img/vacation/Korea.jpg',
+        hoverImageUrl: '/img/vacation/Korea.jpg',
+    },
+    {
+        title: 'Mexico',
+        imageUrl: '/img/vacation/Mexico.jpg',
+        hoverImageUrl: '/img/vacation/Mexico.jpg',
+    },
+    {
+        title: 'Nhật Bản - OSAKA',
+        imageUrl: '/img/vacation/Osaka.jpg',
+        hoverImageUrl: '/img/vacation/Osaka.jpg',
+    },
+    {
+        title: 'Sao Hỏa',
+        imageUrl: '/img/vacation/Mars.jpg',
+        hoverImageUrl: '/img/vacation/Mars.jpg',
+    },
+    {
+        title: 'Sao Mộc',
+        imageUrl: '/img/vacation/Jupiter.jpg',
+        hoverImageUrl: '/img/vacation/Jupiter.jpg',
+    },
+];
+
 
     return (
         <div

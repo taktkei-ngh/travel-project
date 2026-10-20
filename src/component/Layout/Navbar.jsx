@@ -148,7 +148,7 @@ export const Navbar = () => {
             const hasShownToday = localStorage.getItem(todayKey);
 
             if (!hasShownToday && activeVouchers.length > 0) {
-                message.info('Pacific có quà tặng bạn, hãy kiểm tra thông báo nhé!', 1);
+                message.info('ROAM có quà tặng bạn, hãy kiểm tra thông báo nhé!', 1);
                 localStorage.setItem(todayKey, 'true');
             }
         };
@@ -277,9 +277,9 @@ export const Navbar = () => {
                             <img
                                 className={'h-12 w-full hidden object-cover lg:block'}
                                 src={config.webConfig.defaultLogo}
-                                alt="Pacific Travel"
+                                alt="ROAM Travel"
                             />
-                            {/*<span className={'text-black font-light'}>Pacific</span>*/}
+                            {/*<span className={'text-black font-light'}>ROAM</span>*/}
                         </Link>
                     </div>
 

@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
 			return today.getTime() >= startDate.getTime() && today.getTime() <= endDate.getTime();
 		});
 		if (hasActiveVoucher) {
-			message.info('Pacific có quà tặng bạn nhé! Hãy kiểm tra thông báo!');
+			message.info('ROAM có quà tặng bạn nhé! Hãy kiểm tra thông báo!');
 			// Lưu trạng thái đã hiển thị và ngày hiển thị
 			localStorage.setItem('voucherNotificationShown', 'true');
 			localStorage.setItem('voucherNotificationDate', today.toISOString().split('T')[0]);

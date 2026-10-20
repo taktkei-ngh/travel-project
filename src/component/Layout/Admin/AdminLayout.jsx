@@ -3,7 +3,7 @@ import { FloatButton } from 'antd';
 
 export const AdminLayout = ({ children }) => {
     useEffect(() => {
-        document.title = "Admin - Pacific Travel";
+        document.title = "Admin - ROAM Travel";
     }, []);
 
     return (

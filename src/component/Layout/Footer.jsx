@@ -1,4 +1,4 @@
-
+﻿
 import React from 'react';
 import { FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -11,11 +11,11 @@ const Footer = () => {
         <footer
             className="bg-cover bg-center text-black"
             style={{
-                backgroundImage: `url(${config.imageConfig.getImage('1mBfO86XrrCLWz7HQwhHucdx-C70svPdl')})`,
+                backgroundImage: `url(${'/img/bg.jpg'})`,
             }}
         >
             <div className="max-w-7xl mx-auto py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
-                {/* Về Chúng Tôi */}
+                {/* Vá» ChÃºng TÃ´i */}
                 <div>
                     <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 uppercase tracking-wide">
                         {t('footer.ti1')}
@@ -35,7 +35,7 @@ const Footer = () => {
                         </a>
 
                         <a
-                            href="https://www.facebook.com/profile.php?id=61574947133985"
+                            href="https://www.instagram.com/takt.keii/"
                             className="text-white bg-orange-500 p-2 sm:p-3 rounded-full hover:bg-orange-600 transition duration-300"
                             aria-label="Facebook"
                         >
@@ -52,7 +52,7 @@ const Footer = () => {
                     </div>
                 </div>
 
-                {/* Thông Tin */}
+                {/* ThÃ´ng Tin */}
                 <div>
                     <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 uppercase tracking-wide">
                         {t('footer.ti3')}
@@ -92,7 +92,7 @@ const Footer = () => {
                     </ul>
                 </div>
 
-                {/* Kinh Nghiệm */}
+                {/* Kinh Nghiá»‡m */}
                 <div>
                     <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 uppercase tracking-wide">
                         {t('footer.ti10')}
@@ -132,7 +132,7 @@ const Footer = () => {
                     </ul>
                 </div>
 
-                {/* Có Câu Hỏi? */}
+                {/* CÃ³ CÃ¢u Há»i? */}
                 <div>
                     <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 uppercase tracking-wide">
                         {t('footer.ti17')}
@@ -167,7 +167,7 @@ const Footer = () => {
             {/* Copyright & Developer Credit */}
             <div className="text-center text-black text-xs sm:text-sm mt-8 sm:mt-12 border-t border-gray-600 pt-4 sm:pt-6 pb-5 opacity-90 px-4">
                 <p>
-                    © {new Date().getFullYear()} ROAM Travel. All rights reserved.
+                    Â© {new Date().getFullYear()} ROAM Travel. All rights reserved.
                 </p>
 
                 <p className="mt-2">
@@ -180,3 +180,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

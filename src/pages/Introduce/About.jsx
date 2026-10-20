@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
     FaCampground,
     FaCity,
@@ -20,102 +20,102 @@ const About = () => {
       icon: <FaHiking className="text-white text-3xl" />,
       title: t("about.ti1"),
       description: t("about.ti2"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaUmbrellaBeach className="text-white text-3xl" />,
       title: t("about.ti3"),
       description: t("about.ti4"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaCity className="text-white text-3xl" />,
       title: t("about.ti5"),
       description: t("about.ti6"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaMapMarkedAlt className="text-white text-3xl" />,
       title: t("about.ti7"),
       description: t("about.ti8"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaMountain className="text-white text-3xl" />,
       title: t("about.ti9"),
       description: t("about.ti10"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaShip className="text-white text-3xl" />,
       title: t("about.ti11"),
       description: t("about.ti12"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaCampground className="text-white text-3xl" />,
       title: t("about.ti13"),
       description: t("about.ti14"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     },
     {
       icon: <FaCampground className="text-white text-3xl" />,
       title: t("about.ti15"),
       description: t("about.ti16"),
-      image: config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      image: '/img/about/about.jpg'
     }
   ];
 
   const testimonials = [
     {
-      name: "Nguyễn Dương Thiên Lý",
+      name: "Nguyá»…n DÆ°Æ¡ng ThiÃªn LÃ½",
       review: t("about.ti17"),
       rating: 5,
-      avatar:config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      avatar:'/img/about/about.jpg'
     },
     {
-      name: "Trần Thanh Tâm",
+      name: "Tráº§n Thanh TÃ¢m",
       review: t("about.ti18"),
       rating: 4.5,
-      avatar:config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      avatar:'/img/about/about.jpg'
     },
     {
-      name: "Lê Văn Chung",
+      name: "LÃª VÄƒn Chung",
       review: t("about.ti19"),
       rating: 5,
-      avatar:config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      avatar:'/img/about/about.jpg'
     },
     {
-      name: "Phạm Thu Hường",
+      name: "Pháº¡m Thu HÆ°á»ng",
       review: t("about.ti20"),
       rating: 4.8,
-      avatar:config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      avatar:'/img/about/about.jpg'
     },
     {
-      name: "Bùi Quốc Huy",
+      name: "BÃ¹i Quá»‘c Huy",
       review: t("about.ti21"),
       rating: 5,
-      avatar:config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      avatar:'/img/about/about.jpg'
     },
     {
-      name: "Nguyễn Đình Tuấn",
+      name: "Nguyá»…n ÄÃ¬nh Tuáº¥n",
       review: t("about.ti22"),
       rating: 5,
-      avatar:config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')
+      avatar:'/img/about/about.jpg'
     }
   ];
 
   return (
     <div className="bg-gray-100 py-16 px-6 lg:px-20">
       <h2 className="text-4xl font-bold text-black text-center">{t("about.ti23")}</h2>
-      {/* Giới thiệu */}
+      {/* Giá»›i thiá»‡u */}
       <div className="container mx-auto px-6 py-12">
   <div className="flex flex-col lg:flex-row items-center">
-    {/* Danh sách hình ảnh (bên trái) */}
+    {/* Danh sÃ¡ch hÃ¬nh áº£nh (bÃªn trÃ¡i) */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-1/2">
-      {/* Hoạt động */}
+      {/* Hoáº¡t Ä‘á»™ng */}
       <div className="relative bg-blue-700 text-white p-6 rounded-lg overflow-hidden shadow-lg">
-        <img src={config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')} alt="Hoạt động" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
+        <img src={'/img/about/about.jpg'} alt="Hoáº¡t Ä‘á»™ng" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
         <div className="relative">
           <div className="bg-orange-500 p-3 rounded-lg inline-block mb-4">
             <i className="fas fa-water text-white text-2xl"></i>
@@ -125,9 +125,9 @@ const About = () => {
         </div>
       </div>
 
-      {/* Sắp xếp chuyến đi */}
+      {/* Sáº¯p xáº¿p chuyáº¿n Ä‘i */}
       <div className="relative bg-green-700 text-white p-6 rounded-lg overflow-hidden shadow-lg">
-        <img src={config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')} alt="Sắp xếp chuyến đi" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
+        <img src={'/img/about/about.jpg'} alt="Sáº¯p xáº¿p chuyáº¿n Ä‘i" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
         <div className="relative">
           <div className="bg-orange-500 p-3 rounded-lg inline-block mb-4">
             <i className="fas fa-plane text-white text-2xl"></i>
@@ -137,9 +137,9 @@ const About = () => {
         </div>
       </div>
 
-      {/* Hướng dẫn viên riêng */}
+      {/* HÆ°á»›ng dáº«n viÃªn riÃªng */}
       <div className="relative bg-teal-700 text-white p-6 rounded-lg overflow-hidden shadow-lg">
-        <img src={config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')} alt="Hướng dẫn viên riêng" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
+        <img src={'/img/about/about.jpg'} alt="HÆ°á»›ng dáº«n viÃªn riÃªng" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
         <div className="relative">
           <div className="bg-orange-500 p-3 rounded-lg inline-block mb-4">
             <i className="fas fa-user text-white text-2xl"></i>
@@ -149,9 +149,9 @@ const About = () => {
         </div>
       </div>
 
-      {/* Quản lý địa điểm */}
+      {/* Quáº£n lÃ½ Ä‘á»‹a Ä‘iá»ƒm */}
       <div className="relative bg-red-700 text-white p-6 rounded-lg overflow-hidden shadow-lg">
-        <img src={config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')} alt="Quản lý địa điểm" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
+        <img src={'/img/about/about.jpg'} alt="Quáº£n lÃ½ Ä‘á»‹a Ä‘iá»ƒm" className="absolute top-0 left-0 w-full h-full object-cover opacity-50" />
         <div className="relative">
           <div className="bg-orange-500 p-3 rounded-lg inline-block mb-4">
             <i className="fas fa-map text-white text-2xl"></i>
@@ -162,7 +162,7 @@ const About = () => {
       </div>
     </div>
 
-    {/* Phần chữ (bên phải) */}
+    {/* Pháº§n chá»¯ (bÃªn pháº£i) */}
     <div className="lg:w-1/2 lg:pl-12 mt-10 lg:mt-0 text-left">
       <motion.p 
         className="text-xl italic text-orange-600 mb-2"
@@ -198,12 +198,12 @@ const About = () => {
   </div>
 </div>
 
-{/* Phần "Về chúng tôi" */}
+{/* Pháº§n "Vá» chÃºng tÃ´i" */}
 <section className="relative w-full h-screen flex flex-col items-center justify-end overflow-hidden pb-16">
-      {/* Hình ảnh lớn full màn hình */}
+      {/* HÃ¬nh áº£nh lá»›n full mÃ n hÃ¬nh */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')}')` }}
+        style={{ backgroundImage: `url('${'/img/about/about.jpg'}')` }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
       </div>
@@ -212,21 +212,21 @@ const About = () => {
         {/* Video Play Button */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
           <button className="w-16 h-16 flex items-center justify-center bg-white text-red-500 rounded-full shadow-lg transition-transform transform hover:scale-110">
-            ▶
+            â–¶
           </button>
         </div>
 
-        {/* Hình ảnh bên trái */}
+        {/* HÃ¬nh áº£nh bÃªn trÃ¡i */}
         <div className="relative lg:w-1/2 flex justify-center mt-16 lg:mt-0">
           <div className="relative w-96 h-96">
             <img
-              src={config.imageConfig.getImage('11GF_uq0FoYzMvy-KBBItsjfigikNOzoH')}
+              src={'/img/about/about.jpg'}
               alt="Large Image"
               className="w-full h-full object-cover rounded-lg border-4 border-white shadow-lg"
             />
             <div className="absolute bottom-[-20px] left-[-30px] border-4 border-white rounded-lg shadow-xl transform rotate-3">
               <img
-                src={config.imageConfig.getImage('1iD_Pa2qZnOyEn6VN6EHXd_9nGw9B_3PL')}
+                src={'/img/about/aboutbg.jpg'}
                 alt="Small Floating"
                 className="w-48 h-56 object-cover rounded-lg"
               />
@@ -234,7 +234,7 @@ const About = () => {
           </div>
         </div>
 
-        {/* Nội dung bên phải */}
+        {/* Ná»™i dung bÃªn pháº£i */}
         <div className="lg:w-1/2 lg:pl-20 text-left mt-16 lg:mt-0 text-white">
           <motion.p
             className="text-xl italic text-orange-500 mb-2"
@@ -259,7 +259,7 @@ const About = () => {
       </div>
     </section>
     
-      {/* Dịch vụ */}
+      {/* Dá»‹ch vá»¥ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-12 w-full max-w-7xl px-6 lg:px-0">
         {services.map((service, index) => (
           <motion.div 
@@ -283,9 +283,9 @@ const About = () => {
         ))}
       </div>
       
-      {/* Nhận xét khách hàng */}
-      <div className="mt-10 relative bg-cover bg-center py-16" style={{ backgroundImage: `url('${config.imageConfig.getImage('1JjaqjdwMsg22toEBdQBMgAlDTcfIxMDa')})` }}>
-      {/* Lớp phủ màu xanh */}
+      {/* Nháº­n xÃ©t khÃ¡ch hÃ ng */}
+      <div className="mt-10 relative bg-cover bg-center py-16" style={{ backgroundImage: "url('/img/about/aboutbg.jpg')" }}>
+      {/* Lá»›p phá»§ mÃ u xanh */}
       <div className="absolute inset-0 bg-green-900 opacity-40"></div>
 
       <div className="relative z-10 text-center mb-12">
@@ -320,8 +320,8 @@ const About = () => {
       </div>
       
     </div>
-    {/* Phần giới thiệu công ty */}
-    <section className="relative bg-cover bg-center py-24 text-white text-center" style={{ backgroundImage: `url('${config.imageConfig.getImage('1JjaqjdwMsg22toEBdQBMgAlDTcfIxMDa')}')` }}>
+    {/* Pháº§n giá»›i thiá»‡u cÃ´ng ty */}
+    <section className="relative bg-cover bg-center py-24 text-white text-center" style={{ backgroundImage: "url('/img/about/aboutbg.jpg')" }}>
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="relative z-10 px-6">
           <h2 className="text-5xl font-bold mb-4">{t("about.ti39")}</h2>
@@ -334,3 +334,4 @@ const About = () => {
 };
 
 export default About;
+
