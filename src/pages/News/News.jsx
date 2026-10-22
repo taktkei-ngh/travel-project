@@ -1,17 +1,42 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { NewsCard } from '~/pages/News/components/NewsCard';
+
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Divider, Pagination, Spin, Input, Button, Tag, Empty, notification } from 'antd';
-import { SearchOutlined, MailOutlined, ArrowRightOutlined, FireOutlined } from '@ant-design/icons';
-import { FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaEye } from 'react-icons/fa';
-import BlogServices from '~/services/BlogServices';
-import config from '~/config';
+import {
+    Button,
+    Divider,
+    Empty,
+    Input,
+    Pagination,
+    Spin,
+    Tag,
+    notification,
+} from 'antd';
+import {
+    SearchOutlined,
+    MailOutlined,
+    ArrowRightOutlined,
+    FireOutlined,
+    ClockCircleOutlined,
+    EyeOutlined,
+} from '@ant-design/icons';
+import {
+    FaFacebook,
+    FaTwitter,
+    FaInstagram,
+    FaYoutube,
+    FaNewspaper,
+} from 'react-icons/fa';
+
+import { NewsCard } from '~/pages/News/components/NewsCard';
 import { TopNews } from '~/pages/News/components/TopNews';
 import { TopNewsSection } from '~/pages/News/components/TopNewsSection';
+import BlogServices from '~/services/BlogServices';
+import config from '~/config';
 import { useAuth } from '~/config/AuthContext';
 
 export const News = () => {
     const { currentUser } = useAuth();
+
     const [currentPage, setCurrentPage] = useState(1);
     const [categories, setCategories] = useState([]);
     const [blogs, setBlogs] = useState([]);
@@ -20,49 +45,67 @@ export const News = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [email, setEmail] = useState('');
-    const [sortType, setSortType] = useState('newest'); // 'newest' or 'popular'
+    const [sortType, setSortType] = useState('newest');
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [isSubscribing, setIsSubscribing] = useState(false);
+
     const ITEMS_PER_PAGE = 6;
 
-    // Animation variants
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
-                duration: 0.6,
+                duration: 0.45,
                 when: 'beforeChildren',
-                staggerChildren: 0.15,
+                staggerChildren: 0.08,
             },
         },
     };
 
     const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
+        hidden: { y: 18, opacity: 0 },
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.5, ease: 'easeOut' },
+            transition: { duration: 0.4, ease: 'easeOut' },
         },
     };
 
-    // Fetch data
+    // Load published blog posts and categories
     const fetchData = useCallback(async () => {
         setLoading(true);
+
         try {
             const [blogsResponse, categoriesResponse] = await Promise.all([
-                BlogServices.getAllBlogs({ category: selectedCategory }),
+                BlogServices.getAllBlogs({
+                    category: selectedCategory,
+                }),
                 BlogServices.getBlogCategories(),
             ]);
-            const published = blogsResponse.data.filter((blog) => blog.status === 'PUBLISHED');
-            setBlogs(published);
-            setCategories(categoriesResponse.data);
+
+            const blogData = Array.isArray(blogsResponse?.data)
+                ? blogsResponse.data
+                : [];
+
+            const categoryData = Array.isArray(categoriesResponse?.data)
+                ? categoriesResponse.data
+                : [];
+
+            setBlogs(
+                blogData.filter((blog) => blog.status === 'PUBLISHED')
+            );
+            setCategories(categoryData);
         } catch (error) {
-            console.error('Failed to fetch data:', error);
+            console.error('Failed to fetch news data:', error);
+
             notification.error({
                 message: 'Lỗi tải dữ liệu',
                 description: 'Không thể tải bài viết hoặc danh mục.',
+                placement: 'bottomRight',
             });
+
+            setBlogs([]);
         } finally {
             setLoading(false);
         }
@@ -72,178 +115,325 @@ export const News = () => {
         fetchData();
     }, [fetchData]);
 
-    // Handle search
+    useEffect(() => {
+        document.title = 'Tin tức du lịch | ROAM';
+    }, []);
+
+    // Search title, description, category, author and publication date
     const handleSearch = useCallback(() => {
-        if (!searchTerm.trim()) {
+        const keyword = searchTerm.trim().toLowerCase();
+
+        if (!keyword) {
             setIsSearching(false);
             setSearchResults([]);
+            setCurrentPage(1);
             return;
         }
-        setIsSearching(true);
+
         const results = blogs.filter((blog) => {
-            const createdAt = config.webConfig.convertDateNoTime(blog.createdAt);
+            const createdAt = blog.createdAt
+                ? config.webConfig.convertDateNoTime(blog.createdAt)
+                : '';
+
             return (
-                blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (blog.metaDescription && blog.metaDescription.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (blog.metaTitle && blog.metaTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (blog.category?.name && blog.category.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (blog.user?.username && blog.user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                createdAt.includes(searchTerm)
+                (blog.title || '').toLowerCase().includes(keyword) ||
+                (blog.metaDescription || '').toLowerCase().includes(keyword) ||
+                (blog.metaTitle || '').toLowerCase().includes(keyword) ||
+                (blog.category?.name || '').toLowerCase().includes(keyword) ||
+                (blog.user?.username || '').toLowerCase().includes(keyword) ||
+                String(createdAt).toLowerCase().includes(keyword)
             );
         });
+
         setSearchResults(results);
+        setIsSearching(true);
         setCurrentPage(1);
     }, [searchTerm, blogs]);
 
-    // Handle newsletter subscription
+    // Newsletter subscription
     const handleSubscribe = useCallback(async () => {
+        const normalizedEmail = email.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailRegex.test(email)) {
+
+        if (!emailRegex.test(normalizedEmail)) {
             notification.error({
-                message: 'Lỗi đăng ký',
-                description: 'Vui lòng nhập email hợp lệ.',
+                message: 'Email chưa hợp lệ',
+                description: 'Vui lòng nhập địa chỉ email hợp lệ.',
                 placement: 'bottomRight',
             });
             return;
         }
-        await BlogServices.subscribeBlog(email, currentUser?.username);
-        notification.success({
-            message: 'Đăng ký thành công',
-            description: 'Cảm ơn bạn đã đăng ký nhận bản tin!',
-            placement: 'bottomRight',
-        });
-        setEmail('');
+
+        setIsSubscribing(true);
+
+        try {
+            await BlogServices.subscribeBlog(
+                normalizedEmail,
+                currentUser?.username
+            );
+
+            notification.success({
+                message: 'Đăng ký thành công',
+                description: 'Cảm ơn bạn đã đăng ký nhận bản tin ROAM!',
+                placement: 'bottomRight',
+            });
+
+            setEmail('');
+        } catch (error) {
+            console.error('Newsletter subscription failed:', error);
+
+            notification.error({
+                message: 'Chưa thể đăng ký',
+                description: 'Vui lòng thử lại sau.',
+                placement: 'bottomRight',
+            });
+        } finally {
+            setIsSubscribing(false);
+        }
     }, [email, currentUser?.username]);
 
-    // Filter blogs
-    const getCurrentItems = useCallback(() => {
-        const sortBlogs = (arr) => {
-            if (sortType === 'popular') {
-                return [...arr].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
-            }
-            // Default: newest
-            return [...arr].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        };
-
+    // Select the source list for the current view
+    const sourceBlogs = useMemo(() => {
         if (isSearching) {
-            const sorted = sortBlogs(searchResults);
-            const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-            const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-            return sorted.slice(indexOfFirstItem, indexOfLastItem);
+            return searchResults;
         }
 
-        const filteredBlogs = selectedCategory
-            ? blogs.filter((blog) => blog.category?.name === selectedCategory)
-            : blogs;
+        if (selectedCategory) {
+            return blogs.filter(
+                (blog) => blog.category?.name === selectedCategory
+            );
+        }
 
-        const sorted = sortBlogs(filteredBlogs);
-        const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-        const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-        return sorted.slice(indexOfFirstItem, indexOfLastItem);
-    }, [isSearching, searchResults, blogs, currentPage, selectedCategory, sortType]);
+        return blogs;
+    }, [isSearching, searchResults, selectedCategory, blogs]);
 
-    // Get top news
-    const getTopNews = useCallback(() => {
+    // Sort without mutating the original state
+    const sortedBlogs = useMemo(() => {
+        return [...sourceBlogs].sort((a, b) => {
+            if (sortType === 'popular') {
+                return (b.viewCount || 0) - (a.viewCount || 0);
+            }
+
+            return (
+                new Date(b.createdAt || 0) -
+                new Date(a.createdAt || 0)
+            );
+        });
+    }, [sourceBlogs, sortType]);
+
+    const currentItems = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+
+        return sortedBlogs.slice(
+            startIndex,
+            startIndex + ITEMS_PER_PAGE
+        );
+    }, [sortedBlogs, currentPage]);
+
+    const topBlogs = useMemo(() => {
         return blogs
-            .filter((blog) => blog.viewCount >= 50 || blog.likeCount >= 50)
+            .filter(
+                (blog) =>
+                    (blog.viewCount || 0) >= 50 ||
+                    (blog.likeCount || 0) >= 50
+            )
+            .sort(
+                (a, b) =>
+                    (b.viewCount || 0) - (a.viewCount || 0)
+            )
             .slice(0, 4);
     }, [blogs]);
 
-    // Get categories
-    const getCategories = useCallback(() => {
-        const categoryCounts = blogs.reduce((acc, blog) => {
+    const categorySummaries = useMemo(() => {
+        const categoryCounts = blogs.reduce((accumulator, blog) => {
             const categoryName = blog.category?.name || 'Khác';
-            acc[categoryName] = (acc[categoryName] || 0) + 1;
-            return acc;
+
+            accumulator[categoryName] =
+                (accumulator[categoryName] || 0) + 1;
+
+            return accumulator;
         }, {});
-        return Object.entries(categoryCounts).map(([name, count]) => ({ name, count }));
+
+        return Object.entries(categoryCounts).map(([name, count]) => ({
+            name,
+            count,
+        }));
     }, [blogs]);
+
+    const availableCategories = useMemo(() => {
+        if (categories.length > 0) {
+            return categories;
+        }
+
+        return categorySummaries;
+    }, [categories, categorySummaries]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        window.scrollTo({ top: 500, behavior: 'smooth' });
+
+        window.scrollTo({
+            top: 420,
+            behavior: 'smooth',
+        });
     };
 
     const handleCategoryClick = (categoryName) => {
-        setSelectedCategory(categoryName === selectedCategory ? null : categoryName);
+        const nextCategory =
+            categoryName === selectedCategory ? null : categoryName;
+
+        setSelectedCategory(nextCategory);
         setCurrentPage(1);
         setIsSearching(false);
         setSearchTerm('');
         setSearchResults([]);
     };
 
-    useEffect(() => {
-        document.title = 'Tin Tức Du Lịch - Blog';
+    const clearSearch = () => {
+        setIsSearching(false);
+        setSearchTerm('');
+        setSearchResults([]);
         setCurrentPage(1);
-    }, [selectedCategory]);
+    };
+
+    const categoryName = (category) =>
+        typeof category === 'string'
+            ? category
+            : category?.name || 'Khác';
+
+    const socialLinks = [
+        {
+            label: 'Facebook',
+            href: 'https://www.facebook.com/profile.php?id=61592129280513',
+            Icon: FaFacebook,
+        },
+        {
+            label: 'Instagram',
+            href: 'https://www.instagram.com/takt.keii/',
+            Icon: FaInstagram,
+        },
+        {
+            label: 'Twitter',
+            href: '#',
+            Icon: FaTwitter,
+        },
+        {
+            label: 'YouTube',
+            href: '#',
+            Icon: FaYoutube,
+        },
+    ];
 
     return (
-        <div className="bg-gray-50 min-h-screen py-10">
-            {/* Hero Banner */}
-            <div
-                className="bg-cover bg-center text-white py-12"
-                style={{ backgroundImage: 'url("/img/bg.jpg")' }}
-            >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <main className="min-h-screen bg-[#f7f6f0] pb-14">
+            {/* Hero */}
+            <section className="relative isolate overflow-hidden bg-[#10251b] py-16 text-white sm:py-20 lg:py-24">
+                <div
+                    className="absolute inset-0 -z-10 bg-cover bg-center opacity-30"
+                    style={{ backgroundImage: 'url("/img/bg.jpg")' }}
+                />
+
+                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0b1d14]/95 via-[#10251b]/80 to-[#10251b]/45" />
+
+                <div className="pointer-events-none absolute -right-20 -top-20 -z-10 h-80 w-80 rounded-full bg-orange-400/15 blur-3xl" />
+
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: 22 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="text-center"
+                        transition={{ duration: 0.6 }}
+                        className="max-w-4xl"
                     >
-                        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-orange-800">Khám Phá Thế Giới</h1>
-                        <p className="text-sm md:text-base mb-6 max-w-lg mx-auto text-orange-700">
-                            Tin tức du lịch mới nhất và kinh nghiệm cho hành trình của bạn
+                        <p className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-orange-300 sm:text-sm">
+                            <FaNewspaper />
+                            ROAM · TRAVEL JOURNAL
                         </p>
-                        <div className="max-w-md mx-auto flex">
+
+                        <h1 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-6xl">
+                            Khám phá thế giới
+                            <span className="mt-1 block text-orange-300">
+                                qua từng câu chuyện.
+                            </span>
+                        </h1>
+
+                        <p className="mt-5 max-w-2xl text-sm leading-7 text-white/70 sm:text-base">
+                            Tin tức du lịch, kinh nghiệm hữu ích và cảm hứng
+                            cho hành trình tiếp theo của bạn.
+                        </p>
+
+                        <div className="mt-8 flex w-full max-w-2xl flex-col gap-2 rounded-2xl border border-white/15 bg-white/[0.08] p-2 backdrop-blur-md sm:flex-row">
                             <Input
-                                placeholder="Tìm kiếm theo tiêu đề, mô tả, danh mục, tác giả, ngày..."
+                                placeholder="Tìm theo tiêu đề, mô tả, danh mục hoặc tác giả..."
                                 size="large"
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={(event) =>
+                                    setSearchTerm(event.target.value)
+                                }
                                 onPressEnter={handleSearch}
-                                prefix={<SearchOutlined />}
-                                className="rounded-l-full"
+                                prefix={
+                                    <SearchOutlined className="text-gray-400" />
+                                }
+                                allowClear
+                                className="min-w-0 flex-1 !rounded-xl !border-0 !bg-white"
                             />
+
                             <Button
                                 type="primary"
                                 size="large"
+                                icon={<SearchOutlined />}
                                 onClick={handleSearch}
-                                className="rounded-r-full !bg-orange-700 hover:!bg-orange-800 !border-none"
+                                className="!h-10 !rounded-xl !border-0 !bg-orange-400 !font-bold !text-[#17271f] hover:!bg-orange-300 sm:!h-11"
                             >
-                                Tìm
+                                Tìm bài viết
                             </Button>
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap gap-4 text-xs text-white/60 sm:text-sm">
+                            <span className="inline-flex items-center gap-2">
+                                <FaNewspaper className="text-orange-300" />
+                                {blogs.length} bài viết
+                            </span>
+                            <span className="inline-flex items-center gap-2">
+                                <ClockCircleOutlined className="text-orange-300" />
+                                Cập nhật nội dung du lịch
+                            </span>
                         </div>
                     </motion.div>
                 </div>
-            </div>
+            </section>
 
-            {/* Header */}
-            <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            {/* Section heading */}
+            <header className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-10 lg:pt-14">
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4"
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
                 >
-                    <div className="flex items-center space-x-2">
-                        <span className="text-orange-600 font-medium text-sm uppercase tracking-wide">
-                            Du lịch /
-                        </span>
-                        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
-                            {isSearching ? 'Kết quả tìm kiếm' : selectedCategory || 'Tất cả bài viết'}
+                    <div>
+                        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-orange-600">
+                            ROAM / EDITOR'S PICKS
+                        </p>
+
+                        <h2 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
+                            {isSearching
+                                ? 'Kết quả tìm kiếm'
+                                : selectedCategory || 'Tất cả bài viết'}
                         </h2>
+
+                        <p className="mt-2 text-sm text-gray-500">
+                            {sourceBlogs.length} bài viết phù hợp
+                        </p>
                     </div>
+
                     {isSearching && (
-                        <div className="flex items-center space-x-2">
-                            <Tag color="orange">Kết quả: {searchResults.length}</Tag>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Tag color="orange">
+                                {searchResults.length} kết quả
+                            </Tag>
                             <Button
                                 type="link"
-                                onClick={() => {
-                                    setIsSearching(false);
-                                    setSearchTerm('');
-                                    setSearchResults([]);
-                                }}
+                                onClick={clearSearch}
+                                className="!text-orange-700"
                             >
                                 Xóa tìm kiếm
                             </Button>
@@ -252,241 +442,365 @@ export const News = () => {
                 </motion.div>
             </header>
 
-            {/* Category Filter */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+            {/* Category filters */}
+            <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-10">
                 <div className="flex flex-wrap gap-2">
                     <button
-                        className={`px-3 py-1 text-sm font-medium rounded-full transition-all duration-300 ${
-                            !selectedCategory ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-orange-100'
-                        }`}
+                        type="button"
                         onClick={() => handleCategoryClick(null)}
+                        className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                            !selectedCategory
+                                ? 'border-[#173d2c] bg-[#173d2c] text-white shadow-sm'
+                                : 'border-gray-200 bg-white text-gray-600 hover:border-orange-300 hover:text-orange-700'
+                        }`}
                     >
                         Tất cả
                     </button>
-                    {categories.map((category) => (
-                        <button
-                            key={category.id}
-                            className={`px-3 py-1 text-sm font-medium rounded-full transition-all duration-300 ${
-                                selectedCategory === category.name
-                                    ? 'bg-orange-600 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-orange-100'
-                            }`}
-                            onClick={() => handleCategoryClick(category.name)}
-                        >
-                            {category.name}
-                        </button>
-                    ))}
+
+                    {availableCategories.map((category, index) => {
+                        const name = categoryName(category);
+
+                        return (
+                            <button
+                                type="button"
+                                key={category.id ?? `${name}-${index}`}
+                                onClick={() => handleCategoryClick(name)}
+                                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                                    selectedCategory === name
+                                        ? 'border-[#173d2c] bg-[#173d2c] text-white shadow-sm'
+                                        : 'border-gray-200 bg-white text-gray-600 hover:border-orange-300 hover:text-orange-700'
+                                }`}
+                            >
+                                {name}
+                            </button>
+                        );
+                    })}
                 </div>
             </section>
 
-            {/* Top News Section */}
-            {!isSearching && (
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                    <TopNewsSection blogs={blogs} loading={loading} isSearching={isSearching} />
+            {/* Highlighted news */}
+            {!isSearching && !selectedCategory && (
+                <section className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-10">
+                    <TopNewsSection
+                        blogs={blogs}
+                        loading={loading}
+                        isSearching={isSearching}
+                    />
                 </section>
             )}
 
-            {/* Newsletter Section */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                <div
-                    className="bg-gradient-to-r from-orange-600 to-orange-400 rounded-lg shadow-md p-5 flex flex-col md:flex-row items-center gap-4">
-                    <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-1">Nhận Bản Tin</h3>
-                        <p className="text-sm text-orange-100 mb-3">
-                            Tin tức, ưu đãi và mẹo du lịch mới nhất!
-                        </p>
-                        <div className="flex gap-2">
-                            <Input
-                                placeholder="Email của bạn"
-                                size="middle"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                prefix={<MailOutlined />}
-                                className="rounded-full"
-                            />
-                            <Button
-                                type="primary"
-                                size="middle"
-                                onClick={handleSubscribe}
-                                className="rounded-full !bg-white !text-orange-600 hover:!bg-orange-50"
-                            >
-                                Đăng ký
-                            </Button>
+            {/* Newsletter */}
+            <section className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-10">
+                <motion.div
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-r from-[#153c2a] via-[#1b4a34] to-[#285941] p-6 shadow-xl shadow-emerald-950/10 sm:p-8 lg:p-10"
+                >
+                    <div className="pointer-events-none absolute -right-16 -top-20 -z-10 h-64 w-64 rounded-full bg-orange-400/15 blur-3xl" />
+
+                    <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="max-w-2xl">
+                            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-orange-300">
+                                <MailOutlined />
+                                ROAM JOURNAL
+                            </span>
+
+                            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
+                                Một chút cảm hứng cho chuyến đi tiếp theo?
+                            </h2>
+
+                            <p className="mt-3 text-sm leading-7 text-white/70 sm:text-base">
+                                Nhận tin tức, kinh nghiệm và gợi ý du lịch
+                                mới nhất qua email của bạn.
+                            </p>
+                        </div>
+
+                        <div className="w-full max-w-xl lg:max-w-md">
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <Input
+                                    type="email"
+                                    placeholder="Email của bạn"
+                                    size="large"
+                                    value={email}
+                                    onChange={(event) =>
+                                        setEmail(event.target.value)
+                                    }
+                                    onPressEnter={handleSubscribe}
+                                    prefix={
+                                        <MailOutlined className="text-gray-400" />
+                                    }
+                                    className="min-w-0 flex-1 !rounded-xl"
+                                />
+
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    loading={isSubscribing}
+                                    onClick={handleSubscribe}
+                                    className="!h-10 !rounded-xl !border-0 !bg-orange-400 !font-bold !text-[#17271f] hover:!bg-orange-300 sm:!h-11"
+                                >
+                                    Đăng ký nhận tin
+                                </Button>
+                            </div>
+
+                            <p className="mt-2 text-xs text-white/45">
+                                Bạn có thể đăng ký bằng email đang sử dụng.
+                            </p>
                         </div>
                     </div>
-                    <div className="w-28 h-28 md:w-32 md:h-32 hidden md:block">
-                        <img
-                            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80"
-                            alt="Travel Newsletter"
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                                e.target.src = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=300&q=80';
-                            }}
-                        />
-                    </div>
-                </div>
+                </motion.div>
             </section>
 
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6">
-                {/* Main Content Section */}
-                <section className="lg:w-2/3">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="flex items-center justify-between mb-3"
-                    >
-                        <div className="flex items-center">
-                            {isSearching ? (
-                                <SearchOutlined className="text-orange-600 text-base mr-2" />
-                            ) : (
-                                <FireOutlined className="text-orange-500 text-base mr-2" />
-                            )}
-                            <h2 className="text-lg font-semibold text-gray-800 uppercase">
-                                {isSearching ? 'Kết Quả Tìm Kiếm' : selectedCategory || 'Tất Cả Bài Viết'}
-                            </h2>
+            {/* Articles and sidebar */}
+            <main
+                id="news-list"
+                className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-10"
+            >
+                {/* Articles */}
+                <section className="min-w-0">
+                    <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
+                                {isSearching ? (
+                                    <SearchOutlined />
+                                ) : (
+                                    <FireOutlined />
+                                )}
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-extrabold text-gray-900">
+                                    {isSearching
+                                        ? 'Kết quả tìm kiếm'
+                                        : 'Bài viết dành cho bạn'}
+                                </h2>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Sắp xếp nội dung theo nhu cầu của bạn.
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <span className="text-xs text-gray-500">Sắp xếp:</span>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="mr-1 text-xs text-gray-500">
+                                Sắp xếp:
+                            </span>
+
                             <Button
-                                size="small"
+                                size="middle"
                                 type={sortType === 'newest' ? 'primary' : 'default'}
-                                className="rounded-full"
                                 onClick={() => setSortType('newest')}
+                                className={
+                                    sortType === 'newest'
+                                        ? '!rounded-full !border-0 !bg-[#173d2c]'
+                                        : '!rounded-full'
+                                }
                             >
                                 Mới nhất
                             </Button>
+
                             <Button
-                                size="small"
+                                size="middle"
                                 type={sortType === 'popular' ? 'primary' : 'default'}
-                                className="rounded-full"
                                 onClick={() => setSortType('popular')}
+                                className={
+                                    sortType === 'popular'
+                                        ? '!rounded-full !border-0 !bg-[#173d2c]'
+                                        : '!rounded-full'
+                                }
                             >
                                 Phổ biến
                             </Button>
                         </div>
-                    </motion.div>
-                    <Divider className="my-2 border-gray-200" />
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="flex flex-col gap-5"
-                    >
-                        {loading ? (
-                            <div className="flex justify-center items-center py-8">
-                                <Spin size="large" tip="Đang tải..." />
-                            </div>
-                        ) : getCurrentItems().length > 0 ? (
-                            getCurrentItems().map((article) => (
-                                <motion.div key={article.id} variants={itemVariants}>
+                    </div>
+
+                    <Divider className="!my-5 !border-gray-200" />
+
+                    {loading ? (
+                        <div className="flex min-h-64 items-center justify-center rounded-2xl bg-white">
+                            <Spin size="large" tip="Đang tải bài viết..." />
+                        </div>
+                    ) : currentItems.length > 0 ? (
+                        <motion.div
+                            key={`${currentPage}-${sortType}-${selectedCategory || 'all'}-${isSearching}`}
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            className="flex flex-col gap-5"
+                        >
+                            {currentItems.map((article) => (
+                                <motion.div
+                                    key={article.id}
+                                    variants={itemVariants}
+                                >
                                     <NewsCard blog={article} />
                                 </motion.div>
-                            ))
-                        ) : (
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white p-8">
                             <Empty
-                                description={isSearching ? 'Không tìm thấy kết quả' : 'Không có bài viết'}
+                                description={
+                                    isSearching
+                                        ? 'Không tìm thấy bài viết phù hợp'
+                                        : 'Chưa có bài viết trong danh mục này'
+                                }
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                className="py-8"
                             />
-                        )}
-                    </motion.div>
-                    {(isSearching ? searchResults.length : blogs.length) > ITEMS_PER_PAGE && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 0.5 }}
-                            className="mt-6 flex justify-center"
-                        >
+
+                            {isSearching && (
+                                <Button
+                                    onClick={clearSearch}
+                                    className="!mt-3 !rounded-xl"
+                                >
+                                    Xem tất cả bài viết
+                                </Button>
+                            )}
+                        </div>
+                    )}
+
+                    {!loading && sourceBlogs.length > ITEMS_PER_PAGE && (
+                        <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-white bg-white p-5">
+                            <p className="text-xs text-gray-500">
+                                Trang {currentPage} /{' '}
+                                {Math.ceil(sourceBlogs.length / ITEMS_PER_PAGE)}
+                            </p>
+
                             <Pagination
                                 current={currentPage}
-                                total={isSearching ? searchResults.length : blogs.length}
+                                total={sourceBlogs.length}
                                 pageSize={ITEMS_PER_PAGE}
                                 onChange={handlePageChange}
                                 showSizeChanger={false}
-                                showQuickJumper
-                                className="[&>li>.ant-pagination-item-active]:bg-orange-600 [&>li>.ant-pagination-item-active]:border-orange-600 [&>li>.ant-pagination-item-active>a]:text-white [&>li>.ant-pagination-item:hover]:border-orange-600 [&>li>.ant-pagination-item:hover>a]:text-orange-600"
+                                responsive
+                                showLessItems
                             />
-                        </motion.div>
+                        </div>
                     )}
                 </section>
 
                 {/* Sidebar */}
-                <section className="lg:w-1/3">
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                    >
-                        {/* Popular Posts */}
-                        <div className="bg-white rounded-lg shadow-sm p-4 mb-5">
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-base font-semibold text-gray-800">Bài viết phổ biến</h3>
-                                <Button type="text" size="small" className="text-orange-600">Xem thêm</Button>
-                            </div>
-                            <Divider className="my-2 border-gray-200" />
-                            <div className="space-y-3">
-                                {getTopNews().slice(0, 3).map((article) => (
+                <aside className="space-y-5">
+                    <section className="rounded-2xl border border-white bg-white p-5 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between gap-2">
+                            <h2 className="text-base font-extrabold text-gray-900">
+                                Bài viết phổ biến
+                            </h2>
+                            <EyeOutlined className="text-orange-500" />
+                        </div>
+
+                        <Divider className="!my-3" />
+
+                        <div className="space-y-4">
+                            {topBlogs.length > 0 ? (
+                                topBlogs.slice(0, 3).map((article) => (
                                     <TopNews
                                         key={article.id}
                                         news={article}
                                     />
-                                ))}
-                            </div>
+                                ))
+                            ) : (
+                                <p className="text-sm leading-6 text-gray-500">
+                                    Chưa có bài viết nổi bật.
+                                </p>
+                            )}
                         </div>
+                    </section>
 
-                        {/* Categories */}
-                        <div className="bg-white rounded-lg shadow-sm p-4 mb-5">
-                            <h3 className="text-base font-semibold text-gray-800 mb-2">Danh mục</h3>
-                            <Divider className="my-2 border-gray-200" />
-                            <div className="space-y-2">
-                                {getCategories().map((category) => (
+                    <section className="rounded-2xl border border-white bg-white p-5 shadow-sm">
+                        <h2 className="text-base font-extrabold text-gray-900">
+                            Danh mục
+                        </h2>
+
+                        <Divider className="!my-3" />
+
+                        <div className="space-y-1">
+                            {categorySummaries.length > 0 ? (
+                                categorySummaries.map((category) => (
                                     <button
+                                        type="button"
                                         key={category.name}
-                                        className={`w-full flex justify-between items-center py-1.5 px-2 rounded text-sm transition-all duration-200 ${
+                                        onClick={() =>
+                                            handleCategoryClick(category.name)
+                                        }
+                                        className={`flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
                                             selectedCategory === category.name
-                                                ? 'bg-orange-50 text-orange-600'
-                                                : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+                                                ? 'bg-emerald-50 font-semibold text-emerald-800'
+                                                : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
                                         }`}
-                                        onClick={() => handleCategoryClick(category.name)}
                                     >
                                         <span>{category.name}</span>
-                                        <span
-                                            className="bg-orange-100 text-orange-600 text-xs px-2 py-0.5 rounded-full">
+                                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
                                             {category.count}
                                         </span>
                                     </button>
-                                ))}
-                            </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500">
+                                    Chưa có danh mục.
+                                </p>
+                            )}
                         </div>
+                    </section>
 
-                        {/* Social Media */}
-                        <div className="bg-white rounded-lg shadow-sm p-4">
-                            <h3 className="text-base font-semibold text-gray-800 mb-2">Kết nối</h3>
-                            <Divider className="my-2 border-gray-200" />
-                            <div className="flex gap-3 justify-center">
-                                <a href="#"
-                                   className="p-2 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors duration-200">
-                                    <FaFacebook className="text-orange-600 text-lg" />
+                    <section className="rounded-2xl border border-white bg-white p-5 shadow-sm">
+                        <h2 className="text-base font-extrabold text-gray-900">
+                            Kết nối với ROAM
+                        </h2>
+
+                        <p className="mt-2 text-sm leading-6 text-gray-500">
+                            Theo dõi các kênh của chúng tôi để cập nhật thêm
+                            cảm hứng du lịch.
+                        </p>
+
+                        <Divider className="!my-4" />
+
+                        <div className="flex flex-wrap gap-3">
+                            {socialLinks.map(({ label, href, Icon }) => (
+                                <a
+                                    key={label}
+                                    href={href}
+                                    aria-label={label}
+                                    target={href === '#' ? undefined : '_blank'}
+                                    rel={
+                                        href === '#'
+                                            ? undefined
+                                            : 'noopener noreferrer'
+                                    }
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-600 transition-all duration-300 hover:-translate-y-1 hover:bg-[#173d2c] hover:text-white"
+                                >
+                                    <Icon size={17} />
                                 </a>
-                                <a href="#"
-                                   className="p-2 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors duration-200">
-                                    <FaTwitter className="text-orange-400 text-lg" />
-                                </a>
-                                <a href="#"
-                                   className="p-2 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors duration-200">
-                                    <FaInstagram className="text-pink-600 text-lg" />
-                                </a>
-                                <a href="#"
-                                   className="p-2 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors duration-200">
-                                    <FaYoutube className="text-red-600 text-lg" />
-                                </a>
-                            </div>
+                            ))}
                         </div>
-                    </motion.div>
-                </section>
+                    </section>
+
+                    <section className="rounded-2xl bg-[#13271d] p-5 text-white">
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-300">
+                            ROAM · EXPLORE MORE
+                        </p>
+                        <h2 className="mt-3 text-lg font-extrabold">
+                            Sẵn sàng cho chuyến đi tiếp theo?
+                        </h2>
+                        <p className="mt-2 text-sm leading-6 text-white/65">
+                            Khám phá tour và lên kế hoạch cho hành trình mới.
+                        </p>
+                        <Button
+                            type="primary"
+                            icon={<ArrowRightOutlined />}
+                            onClick={() =>
+                                (window.location.href =
+                                    config.routes.tourTrongNuoc)
+                            }
+                            className="!mt-4 !h-10 !rounded-xl !border-0 !bg-orange-400 !font-bold !text-[#17271f] hover:!bg-orange-300"
+                        >
+                            Khám phá tour
+                        </Button>
+                    </section>
+                </aside>
             </main>
-        </div>
+        </main>
     );
 };
+
+export default News;

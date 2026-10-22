@@ -1,24 +1,63 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import NavbarMB from '~/component/Layout/MenuMB/NavbarMB';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '~/config/AuthContext';
-import { Badge, Dropdown, Menu, message, Tooltip, Avatar } from 'antd';
-import { motion } from 'framer-motion';
+import { Avatar, message } from 'antd';
+import { motion, AnimatePresence } from 'framer-motion';
 import config from '~/config';
-import { faBell, faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+    faBell,
+    faGlobe,
+    faUser,
+    faKey,
+    faSignInAlt,
+    faUserPlus,
+    faCheck,
+    faTimes,
+    faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 export const Navbar = () => {
     const { t, i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
+    const [openPanel, setOpenPanel] = useState(null);
+
     const { handleLogout, currentUser, vouchers } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const navbarRef = useRef(null);
 
     useEffect(() => {
         setSelectedLang(i18n.language);
     }, [i18n.language]);
+
+    // Đóng popup khi click bên ngoài navbar hoặc nhấn Escape.
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (
+                navbarRef.current &&
+                !navbarRef.current.contains(event.target)
+            ) {
+                setOpenPanel(null);
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                setOpenPanel(null);
+            }
+        };
+
+        document.addEventListener('mousedown', handleOutsideClick);
+        document.addEventListener('keydown', handleEscape);
+
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
+        };
+    }, []);
 
     const navItems = [
         {
@@ -47,382 +86,698 @@ export const Navbar = () => {
         },
     ];
 
-    const NavItemsElm = ({ title, href }) => {
-        const isActive = location.pathname === href ||
-            (href !== config.routes.home && location.pathname.startsWith(href));
-
-        return (
-            <div className="relative group">
-                <Link
-                    to={href}
-                    className={`px-2 py-2 rounded-md text-gray-700 hover:text-yellow-600 transition duration-300 uppercase font-bold whitespace-nowrap ${
-                        isActive ? 'text-yellow-600' : ''
-                    }`}
-                >
-                    {title}
-                </Link>
-                {/* Active indicator line */}
-                <div
-                    className={`absolute bottom-0 left-0 w-full h-0.5 bg-yellow-600 transform origin-left transition-transform duration-300 ${
-                        isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                    }`}></div>
-            </div>
-        );
-    };
-
-    const menuItems = [
-        {
-            key: 'thong-tin-ca-nhan',
-            title: t('menu.title7'),
-            icon: <FontAwesomeIcon icon="user" />,
-            href: config.routes.profile,
-        },
-        {
-            key: 'doi-mat-khau',
-            title: t('menu.title8'),
-            icon: <FontAwesomeIcon icon="key" />,
-            href: config.routes.changePassword,
-        },
-    ];
-    const menuGroup = (
-        <Menu>
-            <Menu.ItemGroup title={t('menu.title10')}>
-                {menuItems.map((item) => (
-                    <Menu.Item icon={item.icon} key={item.key}>
-                        <Link to={item.href}
-                              className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                            {item.title}
-                        </Link>
-                    </Menu.Item>
-                ))}
-            </Menu.ItemGroup>
-            <Menu.ItemGroup title={t('menu.title12')}>
-                {currentUser?.role === 'ADMIN' && (
-                    <Menu.Item key="admin">
-                        <Link to={config.routes.adminHome}
-                              className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                            Admin
-                        </Link>
-                    </Menu.Item>
-                )}
-                <Menu.Item key="logout">
-                    <button
-                        onClick={() => handleLogout(navigate)}
-                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
-                        {t('menu.title13')}
-                    </button>
-                </Menu.Item>
-            </Menu.ItemGroup>
-        </Menu>
-    );
-
     const languages = [
-        { code: 'vi', label: 'Tiếng Việt' },
-        { code: 'en', label: 'English' },
-        { code: 'ja', label: '日本語' },
-        { code: 'zh', label: '中文' },
-        { code: 'ko', label: '한국어' },
+        { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+        { code: 'en', label: 'English', flag: '🇬🇧' },
+        { code: 'ja', label: '日本語', flag: '🇯🇵' },
+        { code: 'zh', label: '中文', flag: '🇨🇳' },
+        { code: 'ko', label: '한국어', flag: '🇰🇷' },
     ];
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
         setSelectedLang(lng);
+        setOpenPanel(null);
     };
 
+    const togglePanel = (panel) => {
+        setOpenPanel((current) => (current === panel ? null : panel));
+    };
+
+    const NavItemsElm = ({ title, href }) => {
+        const isActive =
+            location.pathname === href ||
+            (href !== config.routes.home &&
+                location.pathname.startsWith(href));
+
+        return (
+            <div className="relative group">
+                <Link
+                    to={href}
+                    onClick={() => setOpenPanel(null)}
+                    className={`relative inline-flex items-center px-2 py-2 text-xs font-bold uppercase tracking-wide transition-colors duration-300 whitespace-nowrap ${
+                        isActive
+                            ? 'text-amber-600'
+                            : 'text-gray-700 hover:text-amber-600'
+                    }`}
+                >
+                    {title}
+
+                    <span
+                        className={`absolute bottom-0 left-2 right-2 h-0.5 origin-left rounded-full bg-amber-500 transition-transform duration-300 ${
+                            isActive
+                                ? 'scale-x-100'
+                                : 'scale-x-0 group-hover:scale-x-100'
+                        }`}
+                    />
+                </Link>
+            </div>
+        );
+    };
+
+    // Xác định voucher còn hiệu lực trong ngày hôm nay.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const activeVouchers = vouchers.filter((voucher) => {
+    const activeVouchers = (vouchers || []).filter((voucher) => {
+        if (!voucher.startDate || !voucher.endDate) {
+            return false;
+        }
+
         const startDate = new Date(voucher.startDate);
         const endDate = new Date(voucher.endDate);
+
+        if (
+            Number.isNaN(startDate.getTime()) ||
+            Number.isNaN(endDate.getTime())
+        ) {
+            return false;
+        }
+
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(0, 0, 0, 0);
-        return today.getTime() >= startDate.getTime() && today.getTime() <= endDate.getTime();
+
+        return (
+            today.getTime() >= startDate.getTime() &&
+            today.getTime() <= endDate.getTime()
+        );
     });
 
-
+    // Chỉ hiển thị thông báo voucher một lần mỗi ngày.
     useEffect(() => {
-        const checkAndShowVoucherNotification = () => {
-            const todayKey = `voucher_notified_${new Date().toDateString()}`;
-            const hasShownToday = localStorage.getItem(todayKey);
+        const todayKey = `voucher_notified_${new Date().toDateString()}`;
+        const hasShownToday = localStorage.getItem(todayKey);
 
-            if (!hasShownToday && activeVouchers.length > 0) {
-                message.info('ROAM có quà tặng bạn, hãy kiểm tra thông báo nhé!', 1);
-                localStorage.setItem(todayKey, 'true');
-            }
-        };
+        if (!hasShownToday && activeVouchers.length > 0) {
+            message.info(
+                'ROAM có quà tặng bạn, hãy kiểm tra thông báo nhé!',
+                2
+            );
 
-        checkAndShowVoucherNotification();
-    }, [vouchers, activeVouchers]);
+            localStorage.setItem(todayKey, 'true');
+        }
+    }, [vouchers, activeVouchers.length]);
 
-// Khởi tạo trạng thái viewedVouchers
     const [viewedVouchers, setViewedVouchers] = useState(() => {
-        const saved = localStorage.getItem('viewedVouchers');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('viewedVouchers');
+            const parsed = saved ? JSON.parse(saved) : [];
+
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            return [];
+        }
     });
 
-// Lọc các voucher chưa được xem
-    const visibleVouchers = activeVouchers.filter((voucher) => !viewedVouchers.includes(voucher.id));
+    const visibleVouchers = activeVouchers.filter(
+        (voucher) => !viewedVouchers.includes(voucher.id)
+    );
 
-// Hàm xử lý khi nhấn nút "Đã xem"
     const handleMarkAsViewed = (voucherId) => {
-        const updatedViewedVouchers = [...viewedVouchers, voucherId];
+        const updatedViewedVouchers = [
+            ...new Set([...viewedVouchers, voucherId]),
+        ];
+
         setViewedVouchers(updatedViewedVouchers);
-        localStorage.setItem('viewedVouchers', JSON.stringify(updatedViewedVouchers));
+
+        localStorage.setItem(
+            'viewedVouchers',
+            JSON.stringify(updatedViewedVouchers)
+        );
     };
 
     const handleClearAll = () => {
-        // Lấy tất cả ID của activeVouchers
-        const allVoucherIds = activeVouchers.map((voucher) => voucher.id);
-        // Thêm tất cả ID vào viewedVouchers (coi như đã xem hết)
-        const updatedViewedVouchers = [...new Set([...viewedVouchers, ...allVoucherIds])]; // Sử dụng Set để tránh trùng lặp
+        const allVoucherIds = activeVouchers.map(
+            (voucher) => voucher.id
+        );
+
+        const updatedViewedVouchers = [
+            ...new Set([...viewedVouchers, ...allVoucherIds]),
+        ];
+
         setViewedVouchers(updatedViewedVouchers);
-        localStorage.setItem('viewedVouchers', JSON.stringify(updatedViewedVouchers));
-        message.success('Xóa tất cả thông báo thành công', 1);
+
+        localStorage.setItem(
+            'viewedVouchers',
+            JSON.stringify(updatedViewedVouchers)
+        );
+
+        message.success('Xóa tất cả thông báo thành công', 1.5);
     };
 
-    const voucherMenu = (
-        <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-        >
-            <div className={'bg-white shadow-lg rounded-lg'}>
-                <Menu className="max-h-96">
-                    {visibleVouchers.length > 0 ? (
-                        <>
-                            {visibleVouchers.map((voucher) => (
-                                <Menu.Item
-                                    key={voucher.id}
-                                    className="hover:bg-gray-100 transition-colors duration-200"
-                                    style={{ padding: '12px 16px' }}
-                                >
-                                    <div className="flex justify-between items-center">
-                                        <div>
-                                            <p className="font-semibold text-blue-600 text-sm">
-                                                {voucher.title}
-                                            </p>
+    const handleLogoutClick = async () => {
+        setOpenPanel(null);
+        await handleLogout(navigate);
+    };
 
-                                            <p className="text-gray-600 text-md">
-                                                Mã voucher:{' '}
-                                                <Tooltip placement={'right'} title={'Nhấn để sao chép mã'}>
-                                                    <span
-                                                        className="font-medium text-red-600 cursor-pointer hover:underline"
-                                                        onClick={() => {
-                                                            navigator.clipboard.writeText(voucher.codeVoucher);
-                                                            message.success('Bạn đã lưu mã voucher vào bộ nhớ tạm!', 1);
-                                                        }}
-                                                    >
-                                                          {voucher.codeVoucher}
-                                                    </span>
-                                                </Tooltip>
-                                            </p>
-                                            <p className={'text-gray-700 text-xs'}>
-                                                Trạng thái: <span
-                                                className={`font-medium ${voucher.isUsed ? 'text-green-600' : 'text-red-600'}`}>
-                                                {voucher.isUsed ? 'Đã sử dụng' : 'Chưa sử dụng'}
-                                            </span>
-                                            </p>
-                                            <p className="text-gray-700 text-xs">
-                                                Giảm giá: <span
-                                                className="font-medium text-green-600">{voucher.discountValue}%</span>
-                                            </p>
-                                            <p className="text-gray-600 text-xs">
-                                                Ngày bắt đầu: {config.webConfig.convertDateNoTime(voucher.startDate)}
-                                            </p>
-                                            <p className="text-gray-600 text-xs">
-                                                Ngày kết thúc: {config.webConfig.convertDateNoTime(voucher.endDate)}
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => handleMarkAsViewed(voucher.id)}
-                                            className="text-xs text-white bg-red-500 hover:bg-red-600 rounded-full px-2 py-1 transition-colors duration-200"
-                                        >
-                                            Đã xem
-                                        </button>
-                                    </div>
-                                </Menu.Item>
-                            ))}
-                            <Menu.Item className={'bg-gray-100 hover:text-red-600 transition-all hover:bg-gray-50'}
-                                       style={{ padding: '12px 16px' }}>
-                                <button
-                                    onClick={handleClearAll}
-                                    className="w-full text-center text-sm text-red-500 hover:text-red-600"
-                                >
-                                    Xóa tất cả thông báo
-                                </button>
-                            </Menu.Item>
-                        </>
-                    ) : (
-                        <Menu.Item disabled style={{ padding: '12px 16px' }}>
-                            <p className="text-red-500 text-sm font-medium">
-                                Không có voucher nào khả dụng hôm nay
-                            </p>
-                        </Menu.Item>
-                    )}
-                </Menu>
-            </div>
-        </motion.div>
-    );
+    const panelAnimation = {
+        initial: {
+            opacity: 0,
+            y: 8,
+            scale: 0.98,
+        },
+        animate: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+        },
+        exit: {
+            opacity: 0,
+            y: 6,
+            scale: 0.98,
+        },
+        transition: {
+            duration: 0.18,
+            ease: 'easeOut',
+        },
+    };
 
     return (
-        <header className="sticky top-0 z-50 bg-white shadow-md">
-            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
+        <header
+            ref={navbarRef}
+            className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur-md"
+        >
+            <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="flex h-16 items-center justify-between gap-3">
                     {/* Logo */}
-                    <div className="flex-shrink-0">
-                        <Link to={config.routes.home} className="flex items-center text-xl font-bold text-indigo-600">
-                            <img
-                                className={'h-12 w-full hidden object-cover lg:block'}
-                                src={config.webConfig.defaultLogo}
-                                alt="ROAM Travel"
-                            />
-                            {/*<span className={'text-black font-light'}>ROAM</span>*/}
-                        </Link>
-                    </div>
+                    <Link
+                        to={config.routes.home}
+                        onClick={() => setOpenPanel(null)}
+                        className="flex min-w-0 shrink-0 items-center"
+                        aria-label="ROAM Travel - Trang chủ"
+                    >
+                        <img
+                            className="hidden h-12 max-w-[150px] object-contain lg:block"
+                            src={config.webConfig.defaultLogo}
+                            alt="ROAM Travel"
+                        />
 
-                    {/* Menu Items */}
-                    <div className="hidden md:flex space-x-4">
-                        {navItems.map((item, index) => (
-                            <NavItemsElm key={index} title={item.title} href={item.href} />
+                        <span className="text-xl font-extrabold tracking-tight text-indigo-700 lg:hidden">
+                            ROAM
+                        </span>
+                    </Link>
+
+                    {/* Desktop navigation */}
+                    <div className="hidden min-w-0 flex-1 items-center justify-center gap-2 lg:flex xl:gap-4">
+                        {navItems.map((item) => (
+                            <NavItemsElm
+                                key={item.href}
+                                title={item.title}
+                                href={item.href}
+                            />
                         ))}
                     </div>
-                    {/*<div className={'hidden md:flex space-x-4'}>*/}
-                    <div className={'hidden md:flex space-x-4 items-center ml-auto'}>
-                        <Dropdown
-                            overlay={(
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="shadow-xl rounded-lg overflow-hidden"
-                                >
-                                    <Menu className="border border-gray-100">
-                                        {languages.map(lang => (
-                                            <Menu.Item
-                                                key={lang.code}
-                                                onClick={() => changeLanguage(lang.code)}
-                                                className={`hover:bg-gray-50 transition-colors duration-200 ${
-                                                    selectedLang === lang.code ? 'bg-blue-50 font-medium text-blue-600' : ''
-                                                }`}
-                                            >
-                                                <div className="flex items-center">
-                                                    {selectedLang === lang.code && (
-                                                        <span className="w-1 h-5 bg-blue-500 rounded-full mr-2"></span>
-                                                    )}
-                                                    {lang.label}
-                                                </div>
-                                            </Menu.Item>
-                                        ))}
-                                    </Menu>
-                                </motion.div>
-                            )}
-                            trigger={['click']}
-                            placement="bottomRight"
-                        >
+
+                    {/* Desktop actions */}
+                    <div className="ml-auto hidden shrink-0 items-center gap-2 md:flex">
+                        {/* Language selector */}
+                        <div className="relative">
                             <button
-                                className="w-10 h-10 flex items-center justify-center text-blue-700 hover:text-yellow-600 hover:bg-blue-50 transition-all duration-300 rounded-full border border-gray-200 shadow-md hover:shadow-lg"
+                                type="button"
+                                onClick={() => togglePanel('language')}
                                 aria-label="Change language"
+                                aria-expanded={openPanel === 'language'}
+                                className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200 ${
+                                    openPanel === 'language'
+                                        ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                                        : 'border-gray-200 bg-white text-gray-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700'
+                                }`}
                             >
                                 <FontAwesomeIcon
                                     icon={faGlobe}
-                                    className="text-lg"
+                                    className="text-base"
                                 />
-                                <span className="sr-only">Change language</span>
                             </button>
-                        </Dropdown>
+
+                            <AnimatePresence>
+                                {openPanel === 'language' && (
+                                    <motion.div
+                                        {...panelAnimation}
+                                        className="absolute right-0 top-full z-[100] mt-3 w-52 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl"
+                                    >
+                                        <div className="px-3 pb-2 pt-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
+                                            Language
+                                        </div>
+
+                                        {languages.map((lang) => (
+                                            <button
+                                                type="button"
+                                                key={lang.code}
+                                                onClick={() =>
+                                                    changeLanguage(lang.code)
+                                                }
+                                                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
+                                                    selectedLang === lang.code
+                                                        ? 'bg-indigo-50 font-semibold text-indigo-700'
+                                                        : 'text-gray-700 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                <span className="text-base">
+                                                    {lang.flag}
+                                                </span>
+
+                                                <span className="flex-1">
+                                                    {lang.label}
+                                                </span>
+
+                                                {selectedLang === lang.code && (
+                                                    <FontAwesomeIcon
+                                                        icon={faCheck}
+                                                        className="text-xs"
+                                                    />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         {currentUser ? (
-                            // Giữ nguyên phần code cho currentUser
                             <>
-                                <Dropdown
-                                    overlay={
-                                        <motion.div
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="shadow-xl rounded-lg overflow-hidden"
-                                        >
-                                            {voucherMenu}
-                                        </motion.div>
-                                    }
-                                    trigger={['click']}
-                                    placement="bottomRight"
-                                >
+                                {/* Voucher notifications */}
+                                <div className="relative">
                                     <button
-                                        className="w-10 h-10 flex items-center justify-center text-blue-700 hover:text-yellow-600 hover:bg-blue-50 transition-all duration-300 rounded-full border border-gray-200 shadow-md hover:shadow-lg relative"
+                                        type="button"
+                                        onClick={() =>
+                                            togglePanel('vouchers')
+                                        }
                                         aria-label="Voucher notifications"
+                                        aria-expanded={
+                                            openPanel === 'vouchers'
+                                        }
+                                        className={`relative flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200 ${
+                                            openPanel === 'vouchers'
+                                                ? 'border-amber-200 bg-amber-50 text-amber-600'
+                                                : 'border-gray-200 bg-white text-gray-600 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-600'
+                                        }`}
                                     >
                                         <FontAwesomeIcon
                                             icon={faBell}
-                                            className={`text-lg ${visibleVouchers.length > 0 ? 'animate-pulse text-yellow-600' : ''}`}
+                                            className={`text-base ${
+                                                visibleVouchers.length > 0
+                                                    ? 'animate-pulse text-amber-500'
+                                                    : ''
+                                            }`}
                                         />
+
                                         {visibleVouchers.length > 0 && (
-                                            <Badge
-                                                count={visibleVouchers.length}
-                                                overflowCount={99}
-                                                style={{ backgroundColor: '#f5222d', color: '#fff' }}
-                                                className="absolute -top-1 -right-2"
-                                            />
+                                            <span className="absolute -right-1 -top-1 flex h-[19px] min-w-[19px] items-center justify-center rounded-full border-2 border-white bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+                                                {visibleVouchers.length > 99
+                                                    ? '99+'
+                                                    : visibleVouchers.length}
+                                            </span>
                                         )}
-                                        <span className="sr-only">Voucher notifications</span>
                                     </button>
-                                </Dropdown>
-                                <Dropdown
-                                    overlay={
-                                        <motion.div
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="shadow-xl rounded-lg overflow-hidden"
-                                        >
-                                            {menuGroup}
-                                        </motion.div>
-                                    }
-                                    trigger={['click']}
-                                    placement="bottomRight"
-                                >
-                                    <div
-                                        onClick={(e) => e.preventDefault()}
-                                        className="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-gray-200 shadow-md hover:shadow-lg cursor-pointer hover:bg-blue-50 transition-all duration-300"
+
+                                    <AnimatePresence>
+                                        {openPanel === 'vouchers' && (
+                                            <motion.div
+                                                {...panelAnimation}
+                                                className="absolute right-0 top-full z-[100] mt-3 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl"
+                                            >
+                                                <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-900">
+                                                            Thông báo voucher
+                                                        </h3>
+
+                                                        <p className="mt-1 text-xs text-gray-500">
+                                                            {visibleVouchers.length > 0
+                                                                ? `Bạn có ${visibleVouchers.length} voucher chưa xem`
+                                                                : 'Bạn đã xem tất cả voucher'}
+                                                        </p>
+                                                    </div>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setOpenPanel(null)
+                                                        }
+                                                        aria-label="Close notifications"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                                                    >
+                                                        <FontAwesomeIcon
+                                                            icon={faTimes}
+                                                        />
+                                                    </button>
+                                                </div>
+
+                                                <div className="max-h-96 overflow-y-auto">
+                                                    {visibleVouchers.length > 0 ? (
+                                                        <div className="divide-y divide-gray-100">
+                                                            {visibleVouchers.map(
+                                                                (voucher) => (
+                                                                    <div
+                                                                        key={voucher.id}
+                                                                        className="p-4 transition-colors hover:bg-gray-50"
+                                                                    >
+                                                                        <div className="flex items-start justify-between gap-3">
+                                                                            <div className="min-w-0 flex-1">
+                                                                                <p className="break-words font-semibold text-indigo-700">
+                                                                                    {voucher.title}
+                                                                                </p>
+
+                                                                                <p className="mt-2 text-xs text-gray-500">
+                                                                                    Mã voucher
+                                                                                </p>
+
+                                                                                <button
+                                                                                    type="button"
+                                                                                    title="Nhấn để sao chép mã"
+                                                                                    onClick={(
+                                                                                        event
+                                                                                    ) => {
+                                                                                        event.stopPropagation();
+
+                                                                                        if (
+                                                                                            !navigator.clipboard
+                                                                                        ) {
+                                                                                            message.error(
+                                                                                                'Trình duyệt không hỗ trợ sao chép mã.'
+                                                                                            );
+                                                                                            return;
+                                                                                        }
+
+                                                                                        navigator.clipboard
+                                                                                            .writeText(
+                                                                                                voucher.codeVoucher ||
+                                                                                                    ''
+                                                                                            )
+                                                                                            .then(
+                                                                                                () => {
+                                                                                                    message.success(
+                                                                                                        'Đã sao chép mã voucher!',
+                                                                                                        1.5
+                                                                                                    );
+                                                                                                }
+                                                                                            )
+                                                                                            .catch(
+                                                                                                () => {
+                                                                                                    message.error(
+                                                                                                        'Không thể sao chép mã voucher.'
+                                                                                                    );
+                                                                                                }
+                                                                                            );
+                                                                                    }}
+                                                                                    className="mt-1 max-w-full break-all rounded-md bg-red-50 px-2 py-1 text-sm font-bold text-red-600 transition-colors hover:bg-red-100"
+                                                                                >
+                                                                                    {voucher.codeVoucher}
+                                                                                </button>
+
+                                                                                <p className="mt-2 text-xs text-gray-500">
+                                                                                    Giảm giá:{' '}
+                                                                                    <span className="font-semibold text-emerald-600">
+                                                                                        {voucher.discountValue}
+                                                                                        %
+                                                                                    </span>
+                                                                                </p>
+
+                                                                                <p className="mt-1 text-xs text-gray-500">
+                                                                                    Trạng thái:{' '}
+                                                                                    <span
+                                                                                        className={`font-medium ${
+                                                                                            voucher.isUsed
+                                                                                                ? 'text-emerald-600'
+                                                                                                : 'text-orange-600'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {voucher.isUsed
+                                                                                            ? 'Đã sử dụng'
+                                                                                            : 'Chưa sử dụng'}
+                                                                                    </span>
+                                                                                </p>
+
+                                                                                <div className="mt-2 space-y-1 text-[11px] text-gray-400">
+                                                                                    <p>
+                                                                                        Bắt đầu:{' '}
+                                                                                        {config.webConfig.convertDateNoTime(
+                                                                                            voucher.startDate
+                                                                                        )}
+                                                                                    </p>
+
+                                                                                    <p>
+                                                                                        Kết thúc:{' '}
+                                                                                        {config.webConfig.convertDateNoTime(
+                                                                                            voucher.endDate
+                                                                                        )}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() =>
+                                                                                    handleMarkAsViewed(
+                                                                                        voucher.id
+                                                                                    )
+                                                                                }
+                                                                                className="shrink-0 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+                                                                            >
+                                                                                Đã xem
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="px-5 py-10 text-center">
+                                                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faCheck
+                                                                    }
+                                                                />
+                                                            </div>
+
+                                                            <p className="mt-3 font-semibold text-gray-800">
+                                                                Không có thông báo mới
+                                                            </p>
+
+                                                            <p className="mt-1 text-sm text-gray-500">
+                                                                Các voucher khả dụng của bạn đã được xem.
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {visibleVouchers.length > 0 && (
+                                                    <div className="border-t border-gray-100 p-3">
+                                                        <button
+                                                            type="button"
+                                                            onClick={
+                                                                handleClearAll
+                                                            }
+                                                            className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 transition-colors hover:bg-red-50"
+                                                        >
+                                                            Đánh dấu tất cả đã xem
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Account menu */}
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            togglePanel('account')
+                                        }
+                                        aria-expanded={
+                                            openPanel === 'account'
+                                        }
+                                        className={`flex max-w-[210px] items-center gap-2 rounded-full border py-1.5 pl-2 pr-3 transition-all duration-200 ${
+                                            openPanel === 'account'
+                                                ? 'border-indigo-200 bg-indigo-50'
+                                                : 'border-gray-200 bg-white hover:border-indigo-200 hover:bg-indigo-50'
+                                        }`}
                                     >
                                         <Avatar
-                                            icon={<FontAwesomeIcon icon={faUser} />}
-                                            className="bg-blue-500 flex items-center justify-center"
+                                            icon={
+                                                <FontAwesomeIcon
+                                                    icon={faUser}
+                                                />
+                                            }
+                                            className="flex shrink-0 items-center justify-center bg-indigo-600"
                                             size="small"
                                         />
-                                        <span
-                                            className="text-gray-700 hover:text-yellow-600 transition duration-300 font-medium">
-                                            {currentUser?.username || currentUser?.email}
+
+                                        <span className="max-w-[145px] truncate text-sm font-semibold text-gray-700">
+                                            {currentUser?.username ||
+                                                currentUser?.email}
                                         </span>
-                                    </div>
-                                </Dropdown>
+
+                                        <span
+                                            className={`ml-1 text-[10px] text-gray-400 transition-transform ${
+                                                openPanel === 'account'
+                                                    ? 'rotate-180'
+                                                    : ''
+                                            }`}
+                                        >
+                                            ▼
+                                        </span>
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {openPanel === 'account' && (
+                                            <motion.div
+                                                {...panelAnimation}
+                                                className="absolute right-0 top-full z-[100] mt-3 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl"
+                                            >
+                                                <div className="border-b border-gray-100 px-3 py-3">
+                                                    <p className="truncate font-semibold text-gray-900">
+                                                        {currentUser?.username ||
+                                                            'Tài khoản ROAM'}
+                                                    </p>
+
+                                                    <p className="mt-1 truncate text-xs text-gray-500">
+                                                        {currentUser?.email}
+                                                    </p>
+                                                </div>
+
+                                                <div className="py-2">
+                                                    <Link
+                                                        to={
+                                                            config.routes.profile
+                                                        }
+                                                        onClick={() =>
+                                                            setOpenPanel(null)
+                                                        }
+                                                        className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-50 hover:text-indigo-700"
+                                                    >
+                                                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                                            <FontAwesomeIcon
+                                                                icon={faUser}
+                                                            />
+                                                        </span>
+
+                                                        <span className="flex-1 font-medium">
+                                                            {t('menu.title7')}
+                                                        </span>
+
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faChevronRight
+                                                            }
+                                                            className="text-xs text-gray-300"
+                                                        />
+                                                    </Link>
+
+                                                    <Link
+                                                        to={
+                                                            config.routes.changePassword
+                                                        }
+                                                        onClick={() =>
+                                                            setOpenPanel(null)
+                                                        }
+                                                        className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-50 hover:text-indigo-700"
+                                                    >
+                                                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                                                            <FontAwesomeIcon
+                                                                icon={faKey}
+                                                            />
+                                                        </span>
+
+                                                        <span className="flex-1 font-medium">
+                                                            {t('menu.title8')}
+                                                        </span>
+
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faChevronRight
+                                                            }
+                                                            className="text-xs text-gray-300"
+                                                        />
+                                                    </Link>
+
+                                                    {currentUser?.role ===
+                                                        'ADMIN' && (
+                                                        <Link
+                                                            to={
+                                                                config.routes.adminHome
+                                                            }
+                                                            onClick={() =>
+                                                                setOpenPanel(
+                                                                    null
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-indigo-700"
+                                                        >
+                                                            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faKey
+                                                                    }
+                                                                />
+                                                            </span>
+
+                                                            <span>
+                                                                Trang quản trị
+                                                            </span>
+                                                        </Link>
+                                                    )}
+                                                </div>
+
+                                                <div className="border-t border-gray-100 pt-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={
+                                                            handleLogoutClick
+                                                        }
+                                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+                                                    >
+                                                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+                                                            <FontAwesomeIcon
+                                                                icon={
+                                                                    faSignInAlt
+                                                                }
+                                                            />
+                                                        </span>
+
+                                                        {t('menu.title13')}
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             </>
                         ) : (
-                            // Enhanced login/register buttons
                             <>
                                 <Link
                                     to={config.routes.login}
-                                    className="flex items-center px-4 py-2 rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 hover:shadow-md transition-all duration-300"
+                                    onClick={() => setOpenPanel(null)}
+                                    className="group inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-700"
                                 >
-                                    <FontAwesomeIcon icon="sign-in-alt" className="mr-2" />
-                                    {t('menu.title14')}
+                                    <FontAwesomeIcon
+                                        icon={faSignInAlt}
+                                        className="transition-transform duration-200 group-hover:-translate-x-0.5"
+                                    />
+
+                                    <span>{t('menu.title14')}</span>
                                 </Link>
+
                                 <Link
                                     to={config.routes.register}
-                                    className="flex items-center px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md transition-all duration-300"
+                                    onClick={() => setOpenPanel(null)}
+                                    className="group inline-flex h-10 items-center gap-2 rounded-full bg-indigo-600 px-5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md"
                                 >
-                                    <FontAwesomeIcon icon="user-plus" className="mr-2" />
-                                    {t('menu.title15')}
+                                    <FontAwesomeIcon
+                                        icon={faUserPlus}
+                                        className="transition-transform duration-200 group-hover:scale-110"
+                                    />
+
+                                    <span>{t('menu.title15')}</span>
                                 </Link>
                             </>
                         )}
                     </div>
-                    {/* Mobile Menu Button */}
+
+                    {/* Mobile menu */}
                     <div className="md:hidden">
                         <NavbarMB />
                     </div>
@@ -431,3 +786,5 @@ export const Navbar = () => {
         </header>
     );
 };
+
+export default Navbar;
