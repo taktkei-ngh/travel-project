@@ -16,19 +16,31 @@ export const CategoryPage = () => {
     const [form] = Form.useForm();
 
 
-    const fetchCategories = useCallback(() => {
-        setLoading(true);
-        CategoryServices.getCategories()
-            .then((data) => {
-                setCategories(data);
-            })
-            .catch((err) => {
-                console.error('Error fetching categories:', err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
+   const fetchCategories = useCallback(async () => {
+    setLoading(true);
+
+    try {
+        const response = await CategoryServices.getCategories();
+
+        const items = Array.isArray(response)
+            ? response
+            : Array.isArray(response?.data)
+                ? response.data
+                : [];
+
+        const normalizedCategories = items.map((item) => ({
+            ...item,
+            id: item.id || item._id,
+        }));
+
+        setCategories(normalizedCategories);
+    } catch (err) {
+        console.error('Error fetching categories:', err);
+        message.error('Không thể tải danh sách danh mục!');
+    } finally {
+        setLoading(false);
+    }
+}, []);
 
     useEffect(() => {
         fetchCategories();

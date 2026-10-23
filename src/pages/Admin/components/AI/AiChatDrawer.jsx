@@ -1,65 +1,174 @@
-import {useEffect, useState} from 'react';
+
+import { useEffect, useState } from 'react';
 import Orb from '~/component/Animation/Orb';
-import {Input, Button, Spin, message, Drawer, Collapse, List} from 'antd';
+import {
+    Input,
+    Button,
+    Spin,
+    message,
+    Drawer,
+    Collapse,
+    List,
+} from 'antd';
 import ReactMarkdown from 'react-markdown';
 import AiServices from '~/services/AiServices';
 import DestinationServices from '~/services/DestinationServices';
-import {Link} from "react-router-dom";
+import { Link } from 'react-router-dom';
 import '~/pages/Admin/sections/HomePage/HomePage.css';
-import { MessageOutlined, CheckCircleOutlined, QuestionCircleOutlined, DoubleRightOutlined } from '@ant-design/icons';
+import {
+    MessageOutlined,
+    CheckCircleOutlined,
+    QuestionCircleOutlined,
+    DoubleRightOutlined,
+} from '@ant-design/icons';
 
-const {Panel} = Collapse;
+const { Panel } = Collapse;
 
-const AiChatDrawer = ({open, onClose}) => {
-    const [aiQuery, setAiQuery] = useState('');
-    const [aiResponse, setAiResponse] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [chatHistory, setChatHistory] = useState(() => {
+const DEFAULT_SUGGESTIONS = [
+    'Tour nào giá rẻ?',
+    'Tour cho cặp đôi?',
+    'Tôi có booking nào?',
+    'Tour nào được đặt nhiều?',
+    'Chi tiết tour Đà Nẵng 3N2Đ?',
+    'Tour đi Đà Nẵng?',
+    'Tour đi Hà Nội?',
+];
+
+const readChatHistory = () => {
+    try {
         const saved = localStorage.getItem('userChatHistory');
-        return saved ? JSON.parse(saved) : [];
-    });
-    const [suggestions, setSuggestions] = useState([
-        'Tour nào giá rẻ?',
-        'Tour cho cặp đôi?',
-        'Tôi có booking nào?',
-    ]);
-    const [orbHue, setOrbHue] = useState(270); // Màu tím mặc định
 
+        if (!saved) return [];
+
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Không thể đọc lịch sử chat:', error);
+        return [];
+    }
+};
+
+const getDestinationsArray = (response) => {
+    if (Array.isArray(response)) return response;
+
+    if (Array.isArray(response?.data)) {
+        return response.data;
+    }
+
+    if (Array.isArray(response?.data?.data)) {
+        return response.data.data;
+    }
+
+    if (Array.isArray(response?.destinations)) {
+        return response.destinations;
+    }
+
+    if (Array.isArray(response?.data?.destinations)) {
+        return response.data.destinations;
+    }
+
+    return [];
+};
+
+const getAnswerText = (response) => {
+    if (typeof response === 'string') {
+        return response;
+    }
+
+    if (typeof response?.answer === 'string') {
+        return response.answer;
+    }
+
+    if (typeof response?.response === 'string') {
+        return response.response;
+    }
+
+    if (typeof response?.message === 'string') {
+        return response.message;
+    }
+
+    if (typeof response?.text === 'string') {
+        return response.text;
+    }
+
+    return 'Trợ lý chưa trả về nội dung. Vui lòng thử lại.';
+};
+
+const AiChatDrawer = ({ open, onClose }) => {
+    const [aiQuery, setAiQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [chatHistory, setChatHistory] = useState(readChatHistory);
+    const [suggestions, setSuggestions] = useState(DEFAULT_SUGGESTIONS);
+    const [orbHue, setOrbHue] = useState(270);
+
+    // Tải địa điểm gợi ý từ API.
     useEffect(() => {
-        DestinationServices.getTopDestinations()
-            .then((res) => {
-                const dynamicSuggestions = res.map((dest) => `Tour đi ${dest.city}?`);
-                setSuggestions([
+        let isMounted = true;
+
+        const loadTopDestinations = async () => {
+            try {
+                const response =
+                    await DestinationServices.getTopDestinations();
+
+                if (!isMounted) return;
+
+                const destinations = getDestinationsArray(response);
+
+                const dynamicSuggestions = destinations
+                    .map((destination) => {
+                        const city =
+                            destination?.city ??
+                            destination?.name ??
+                            destination?.location ??
+                            destination?.title;
+
+                        return city ? `Tour đi ${city}?` : null;
+                    })
+                    .filter(Boolean);
+
+                const combinedSuggestions = [
                     'Tour nào giá rẻ?',
                     ...dynamicSuggestions.slice(0, 3),
-                    'Tour cho cặp đôi?',
-                    'Tôi có booking nào?',
-                    'Tour nào được đặt nhiều?',
-                    'Chi tiết tour Đà Nẵng 3N2Đ?',
-                ]);
-            })
-            .catch((err) => {
-                console.error('Lỗi khi lấy top destinations:', err);
-                setSuggestions([
-                    'Tour nào giá rẻ?',
-                    'Tour đi Đà Lạt?',
-                    'Tour đi Đà Nẵng?',
-                    'Tour đi Hà Nội?',
-                    'Tour cho cặp đôi?',
-                    'Tôi có booking nào?',
-                    'Tour nào được đặt nhiều?',
-                    'Chi tiết tour Đà Nẵng 3N2Đ?',
-                ]);
-            });
+                    ...DEFAULT_SUGGESTIONS.slice(1),
+                ];
+
+                setSuggestions([...new Set(combinedSuggestions)]);
+            } catch (error) {
+                if (!isMounted) return;
+
+                console.error(
+                    'Lỗi khi lấy top destinations:',
+                    error
+                );
+
+                // Vẫn dùng gợi ý mặc định nếu API gặp lỗi.
+                setSuggestions(DEFAULT_SUGGESTIONS);
+            }
+        };
+
+        loadTopDestinations();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
+    // Lưu lịch sử chat.
     useEffect(() => {
-        localStorage.setItem('userChatHistory', JSON.stringify(chatHistory));
+        try {
+            localStorage.setItem(
+                'userChatHistory',
+                JSON.stringify(chatHistory)
+            );
+        } catch (error) {
+            console.error('Không thể lưu lịch sử chat:', error);
+        }
     }, [chatHistory]);
 
-    // Cuộn tự động đến câu trả lời mới
+    // Cuộn xuống câu trả lời mới nhất.
     useEffect(() => {
         const chatContainer = document.querySelector('.chat-history');
+
         if (chatContainer) {
             chatContainer.scrollTo({
                 top: chatContainer.scrollHeight,
@@ -69,30 +178,61 @@ const AiChatDrawer = ({open, onClose}) => {
     }, [chatHistory]);
 
     const handleAiQuery = async () => {
-        if (!aiQuery.trim()) {
+        const question = aiQuery.trim();
+
+        if (!question) {
             message.warning('Vui lòng nhập câu hỏi!');
             return;
         }
+
+        if (isLoading) return;
+
         setIsLoading(true);
+
         try {
-            const responseText = await AiServices.askAi(aiQuery);
-            const newChat = {query: aiQuery, response: responseText};
-            setChatHistory([...chatHistory, newChat]);
-            setAiResponse(responseText);
+            const response = await AiServices.askAi(question);
+            const responseText = getAnswerText(response);
+
+            setChatHistory((previousHistory) => [
+                ...previousHistory,
+                {
+                    query: question,
+                    response: responseText,
+                },
+            ]);
+
             setOrbHue(Math.floor(Math.random() * 360));
-            if (responseText.includes('không có tour') || responseText.includes('Chưa có dữ liệu')) {
-                message.warning('Hiện tại không có dữ liệu tour. Hãy thử câu hỏi khác!');
+
+            if (
+                responseText.includes('không có tour') ||
+                responseText.includes('Chưa có dữ liệu')
+            ) {
+                message.warning(
+                    'Hiện tại không có dữ liệu tour. Hãy thử câu hỏi khác!'
+                );
             } else if (responseText.includes('dữ liệu nội bộ')) {
-                message.warning('Câu hỏi này không phù hợp. Hãy hỏi về tour du lịch!');
+                message.warning(
+                    'Câu hỏi này không phù hợp. Hãy hỏi về tour du lịch!'
+                );
             } else {
                 message.success('Câu trả lời đã sẵn sàng!');
             }
-        } catch (err) {
-            const errorResponse = 'Lỗi khi xử lý câu hỏi. Vui lòng thử lại.';
-            setChatHistory([...chatHistory, {query: aiQuery, response: errorResponse}]);
-            setAiResponse(errorResponse);
+        } catch (error) {
+            console.error('Lỗi khi hỏi trợ lý AI:', error);
+
+            const errorResponse =
+                'Lỗi khi xử lý câu hỏi. Vui lòng kiểm tra kết nối và thử lại.';
+
+            setChatHistory((previousHistory) => [
+                ...previousHistory,
+                {
+                    query: question,
+                    response: errorResponse,
+                },
+            ]);
+
             setOrbHue(0);
-            message.error('Có lỗi xảy ra!');
+            message.error('Không thể xử lý câu hỏi lúc này.');
         } finally {
             setIsLoading(false);
             setAiQuery('');
@@ -105,25 +245,68 @@ const AiChatDrawer = ({open, onClose}) => {
 
     const clearChatHistory = () => {
         setChatHistory([]);
-        localStorage.removeItem('userChatHistory');
-        setAiResponse('');
+
+        try {
+            localStorage.removeItem('userChatHistory');
+        } catch (error) {
+            console.error('Không thể xóa lịch sử chat:', error);
+        }
+
         message.success('Đã xóa lịch sử chat!');
     };
 
-    // Hàm render trả lời dạng chuỗi, giữ nguyên gạch đầu dòng
+    // Hiển thị câu trả lời Markdown.
     const renderResponse = (response) => {
-        const lines = response.split('\n');
-        return lines.map((line, index) => (
-            <div key={index} className={line.startsWith('- ') ? 'ml-4 mb-2' : 'mb-2'}>
+        const text =
+            typeof response === 'string'
+                ? response
+                : String(response ?? '');
+
+        return text.split('\n').map((line, index) => (
+            <div
+                key={index}
+                className={
+                    line.startsWith('- ')
+                        ? 'ml-4 mb-2'
+                        : 'mb-2'
+                }
+            >
                 <ReactMarkdown
                     components={{
-                        a: ({node, href, ...props}) => {
-                            return <Link onClick={() => onClose()} to={href} {...props} className="text-blue-600 underline"/>;
+                        a: ({ node, href, children, ...props }) => {
+                            if (!href) {
+                                return <span {...props}>{children}</span>;
+                            }
+
+                            if (/^https?:\/\//i.test(href)) {
+                                return (
+                                    <a
+                                        href={href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        {...props}
+                                    >
+                                        {children}
+                                    </a>
+                                );
+                            }
+
+                            return (
+                                <Link
+                                    to={href}
+                                    onClick={onClose}
+                                    {...props}
+                                >
+                                    {children}
+                                </Link>
+                            );
                         },
-                        li: ({node, ...props}) => <li className="ml-4 list-disc" {...props} />,
+                        li: ({ node, ...props }) => (
+                            <li className="ml-4 list-disc" {...props} />
+                        ),
                     }}
                 >
-                    {line}
+                    {line || ' '}
                 </ReactMarkdown>
             </div>
         ));
@@ -132,12 +315,16 @@ const AiChatDrawer = ({open, onClose}) => {
     return (
         <Drawer
             title={
-                <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold text-gray-800">Trợ lý du lịch AI</span>
+                <div className="flex items-center justify-between gap-3">
+                    <span className="text-lg font-semibold text-gray-800">
+                        Trợ lý du lịch AI
+                    </span>
+
                     <Button
                         danger
-                        className="text-red-500 hover:bg-red-50 rounded-full"
+                        className="rounded-full text-red-500 hover:bg-red-50"
                         onClick={clearChatHistory}
+                        disabled={chatHistory.length === 0}
                     >
                         Xóa lịch sử
                     </Button>
@@ -148,37 +335,53 @@ const AiChatDrawer = ({open, onClose}) => {
             open={open}
             width={450}
             styles={{
-                body: {padding: '20px', background: '#f9fafb'},
-                header: {borderBottom: '1px solid #e5e7eb', padding: '16px 20px', background: '#ffffff'},
+                body: {
+                    padding: 20,
+                    background: '#f9fafb',
+                },
+                header: {
+                    borderBottom: '1px solid #e5e7eb',
+                    padding: '16px 20px',
+                    background: '#ffffff',
+                },
             }}
         >
-            <div className="relative flex flex-col h-full">
+            <div className="relative flex h-full flex-col">
                 <Orb
                     hoverIntensity={0.5}
-                    rotateOnHover={true}
+                    rotateOnHover
                     hue={isLoading ? 180 : orbHue}
                     forceHoverState={isLoading}
-                    className={`absolute top-0 left-0 w-full h-full opacity-10 ${isLoading ? 'animate-pulse scale-105' : ''}`}
+                    className={`absolute left-0 top-0 h-full w-full opacity-10 ${
+                        isLoading ? 'animate-pulse scale-105' : ''
+                    }`}
                 />
-                <div className="relative z-10 flex flex-col h-full gap-4">
-                    {/* Gợi ý trong Collapse */}
+
+                <div className="relative z-10 flex h-full flex-col gap-4">
+                    {/* Gợi ý câu hỏi */}
                     <Collapse
                         defaultActiveKey={['1']}
                         bordered={false}
                         expandIconPosition="right"
-                        className="bg-white rounded-lg shadow-sm"
+                        className="rounded-lg bg-white shadow-sm"
                     >
                         <Panel
-                            header={<span className="text-sm font-medium text-gray-700">Gợi ý câu hỏi</span>}
+                            header={
+                                <span className="text-sm font-medium text-gray-700">
+                                    Gợi ý câu hỏi
+                                </span>
+                            }
                             key="1"
-                            className="p-0"
                         >
                             <List
                                 dataSource={suggestions}
                                 renderItem={(suggestion, index) => (
                                     <List.Item
-                                        className="border-none px-4 py-1 hover:bg-gray-50 cursor-pointer rounded-md"
-                                        onClick={() => handleSuggestionClick(suggestion)}
+                                        key={`${suggestion}-${index}`}
+                                        className="cursor-pointer rounded-md border-none px-4 py-1 hover:bg-gray-50"
+                                        onClick={() =>
+                                            handleSuggestionClick(suggestion)
+                                        }
                                     >
                                         <span className="text-sm text-purple-600 hover:text-purple-800">
                                             {suggestion}
@@ -191,25 +394,30 @@ const AiChatDrawer = ({open, onClose}) => {
 
                     {/* Lịch sử chat */}
                     <div
-                        className="flex-1 bg-white p-4 rounded-lg shadow-sm border border-gray-100 overflow-y-auto chat-history"
-                        style={{maxHeight: '60vh', scrollBehavior: 'smooth'}}
+                        className="chat-history relative flex-1 overflow-y-auto rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
+                        style={{
+                            maxHeight: '60vh',
+                            scrollBehavior: 'smooth',
+                        }}
                     >
                         {chatHistory.length > 0 ? (
                             chatHistory.map((chat, index) => (
                                 <div key={index} className="mb-4">
-                                    <p className="text-sm text-purple-600 font-medium mb-1 flex items-center">
-                                        <span className="bg-purple-100 p-1 rounded-full mr-1">
+                                    <p className="mb-1 flex items-center text-sm font-medium text-purple-600">
+                                        <span className="mr-1 rounded-full bg-purple-100 p-1">
                                             <MessageOutlined className="h-3 w-3" />
                                         </span>
                                         {chat.query}
                                     </p>
-                                    <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg shadow-inner border-l-4 border-purple-400">
-                                        <p className="font-medium mb-2 text-purple-700 flex items-center">
-                                            <span className="bg-purple-100 p-1 rounded-full mr-1">
+
+                                    <div className="rounded-lg border-l-4 border-purple-400 bg-gray-50 p-3 text-sm text-gray-700 shadow-inner">
+                                        <p className="mb-2 flex items-center font-medium text-purple-700">
+                                            <span className="mr-1 rounded-full bg-purple-100 p-1">
                                                 <CheckCircleOutlined className="h-3 w-3" />
                                             </span>
                                             Trả lời:
                                         </p>
+
                                         <div className="markdown-content">
                                             {renderResponse(chat.response)}
                                         </div>
@@ -217,40 +425,64 @@ const AiChatDrawer = ({open, onClose}) => {
                                 </div>
                             ))
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                                <MessageOutlined className="h-12 w-12 text-purple-200 mb-2" style={{ fontSize: '48px' }} />
-                                <p className="text-sm text-gray-500">Chưa có câu hỏi nào. Hãy thử một gợi ý hoặc nhập câu hỏi của bạn!</p>
+                            <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+                                <MessageOutlined
+                                    className="mb-2 text-purple-200"
+                                    style={{ fontSize: 48 }}
+                                />
+
+                                <p className="text-sm text-gray-500">
+                                    Chưa có câu hỏi nào. Hãy thử một gợi ý
+                                    hoặc nhập câu hỏi của bạn!
+                                </p>
                             </div>
                         )}
+
                         {isLoading && (
-                            <div className="flex justify-center items-center absolute inset-0 bg-white bg-opacity-70 z-10">
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
                                 <div className="text-center">
-                                    <Spin tip="Đang tìm câu trả lời..." size="large" />
-                                    <p className="mt-2 text-purple-600 font-medium">Vui lòng đợi một chút...</p>
+                                    <Spin
+                                        tip="Đang tìm câu trả lời..."
+                                        size="large"
+                                    />
+                                    <p className="mt-2 font-medium text-purple-600">
+                                        Vui lòng đợi một chút...
+                                    </p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Input và nút Hỏi */}
-                    <div className="sticky bottom-0 bg-white p-4 rounded-lg shadow-md border border-gray-100">
+                    {/* Ô nhập câu hỏi */}
+                    <div className="sticky bottom-0 rounded-lg border border-gray-100 bg-white p-4 shadow-md">
                         <div className="flex gap-2">
                             <Input
                                 value={aiQuery}
-                                onChange={(e) => setAiQuery(e.target.value)}
+                                onChange={(event) =>
+                                    setAiQuery(event.target.value)
+                                }
                                 placeholder="VD: Tour đi Đà Lạt giá bao nhiêu?"
                                 onPressEnter={handleAiQuery}
-                                className="border-gray-300 focus:ring-purple-500 rounded-lg shadow-sm"
+                                className="rounded-lg border-gray-300 shadow-sm focus:ring-purple-500"
                                 prefix={
-                                    <QuestionCircleOutlined className="h-5 w-5 text-purple-400" style={{ fontSize: '20px' }} />
+                                    <QuestionCircleOutlined
+                                        className="text-purple-400"
+                                        style={{ fontSize: 20 }}
+                                    />
                                 }
+                                disabled={isLoading}
                             />
+
                             <Button
                                 type="primary"
                                 onClick={handleAiQuery}
                                 disabled={isLoading || !aiQuery.trim()}
-                                className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg shadow-sm"
-                                icon={<DoubleRightOutlined className="h-5 w-5" style={{ fontSize: '16px' }} />}
+                                className="rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-sm hover:from-purple-600 hover:to-purple-700"
+                                icon={
+                                    <DoubleRightOutlined
+                                        style={{ fontSize: 16 }}
+                                    />
+                                }
                             >
                                 Hỏi
                             </Button>

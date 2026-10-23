@@ -168,6 +168,7 @@ export default function Orb({
   `;
 
     useEffect(() => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
         const container = ctnDom.current;
         if (!container) return;
 

@@ -56,14 +56,24 @@ const TourServices = {
 		}
 	},
 	getTourByTourDetailId: async (id) => {
-		try {
-			const response = await axiosConfig.get(config.api.tours + `/tour-detail/${id}`);
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+    try {
+        if (!id) {
+            throw new Error('Thiếu ID lịch khởi hành.');
+        }
+
+        const response = await axiosConfig.get(
+            `/api/tour-details/${id}`
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error(
+            'Lỗi lấy chi tiết lịch khởi hành:',
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+},
 
 	updateTour: async (id, data) => {
 		try {

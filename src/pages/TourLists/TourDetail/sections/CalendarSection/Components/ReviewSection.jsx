@@ -6,12 +6,15 @@ import { SearchOutlined } from '@ant-design/icons';
 export const ReviewSection = () => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
+    
     const showReviews = () => {
         setOpen(!open);
     };
+    
     const onClose = () => {
         setOpen(false);
     };
+
     const sampleReviews = [
         {
             name: 'Nguyễn Văn A',
@@ -28,17 +31,21 @@ export const ReviewSection = () => {
             comment: 'Chuyến đi an toàn, sẽ quay lại lần sau.',
         },
     ];
+
     const ratings = [
         { label: "Đáng giá tiền", value: 4.0, percent: 80 },
         { label: "Tiện nghi", value: 5.0, percent: 100 },
         { label: "Chất lượng dịch vụ", value: 4.0, percent: 80 },
         { label: "Dễ tiếp cận", value: 4.0, percent: 80 },
     ];
+
     return (
         <>
             <div className={'flex flex-wrap items-center w-fit justify-between gap-4'}>
                 <h3 className="text-2xl font-semibold mb-4">Đánh giá của khách hàng</h3>
-                <button onClick={showReviews} className={'text-blue-500 text-lg font-bold mb-2'}>Xem tất cả</button>
+                <button onClick={showReviews} className={'text-blue-500 text-lg font-bold mb-2 cursor-pointer'}>
+                    Xem tất cả
+                </button>
                 <Drawer
                     title="Đánh giá của khách hàng"
                     placement="right"
@@ -48,7 +55,7 @@ export const ReviewSection = () => {
                     width={600}
                 >
                     {/* Tìm kiếm và bộ lọc */}
-                    <div className="flex gap-4 items-center mb-4">
+                    <div className="flex gap-4 items-center mb-6">
                         <Input
                             placeholder="Tìm đánh giá"
                             prefix={<SearchOutlined />}
@@ -61,16 +68,20 @@ export const ReviewSection = () => {
                         </Select>
                     </div>
 
-                    {/* Thanh biểu đồ đánh giá */}
-                    <div className="mb-6">
-                        <div className="flex justify-between mb-2">
-                            <span>Đáng giá tiền</span>
-                            <Progress percent={80} showInfo={false} />
-                        </div>
-                        <div className="flex justify-between mb-2">
-                            <span>Chất lượng dịch vụ</span>
-                            <Progress percent={70} showInfo={false} />
-                        </div>
+                    {/* Thanh biểu đồ đánh giá trong Drawer */}
+                    <div className="flex flex-col gap-3 mb-6">
+                        {ratings.map((item, index) => (
+                            <div key={index} className="flex flex-row items-center justify-between w-full">
+                                <span className="w-40 text-sm">{item.label}</span>
+                                <Progress
+                                    percent={item.percent}
+                                    strokeColor="#FFC107"
+                                    showInfo={false}
+                                    className="flex-1 mx-4"
+                                />
+                                <span className="text-sm">{item.value}</span>
+                            </div>
+                        ))}
                     </div>
 
                     <Divider />
@@ -96,14 +107,14 @@ export const ReviewSection = () => {
                 </Drawer>
             </div>
 
-            {/*    TOTAL RATING*/}
+            {/* TOTAL RATING */}
             <div className="flex items-center gap-4 mt-4">
                 <Rate disabled value={4.5} />
                 <span className="text-lg font-semibold">4.5</span>
-                <span className="text-gray-500"> - </span>
-                <span className={"text-lg font-semibold"}>Xuất sắc</span>
-                <span className={"text-gray-500"}> (9 đánh giá)</span>
+                <span className="text-lg font-semibold">Xuất sắc</span>
+                <span className="text-gray-500">(9 đánh giá)</span>
             </div>
+
             <div className={"flex flex-col gap-6 mt-5"}>
                 <div className="grid grid-cols-2 gap-6">
                     {ratings.map((item, index) => (

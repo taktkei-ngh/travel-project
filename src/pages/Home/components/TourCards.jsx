@@ -14,7 +14,10 @@ export const TourCards = ({ data }) => {
     if (!data) return null;
 
     const isInWishlist = wishlistMap?.has(data.id) ?? false;
-    const imageUrl = config.imageConfig.getImage(data.thumbnail);
+   const imageSource =
+    data?.image ?? data?.thumbnail ?? data?.images?.[0];
+
+const imageUrl = config.imageConfig.getImage(imageSource);
     const duration = Number(data.duration);
     const hasDuration = Number.isFinite(duration) && duration > 0;
     const rating = Number(data.ratingAvg) || 0;

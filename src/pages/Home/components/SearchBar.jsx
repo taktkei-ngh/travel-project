@@ -8,7 +8,6 @@ import {
     InputNumber,
     message,
     Radio,
-    Select,
 } from 'antd';
 import { FaBars, FaSearch, FaTrashAlt } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +19,8 @@ const ALL_OPTION = '__ALL__';
 const SearchBar = ({ onSearch }) => {
     const { t } = useTranslation();
 
+    const allCategoryTitle = t('searchBar.ti1');
+
     const [visible, setVisible] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchSides, setSearchSides] = useState(ALL_OPTION);
@@ -29,38 +30,71 @@ const SearchBar = ({ onSearch }) => {
     const [maxPrice, setMaxPrice] = useState(null);
     const [minPrice, setMinPrice] = useState(null);
     const [region, setRegion] = useState('ALL');
-    const [sides, setSides] = useState([]);
 
+    const [sides, setSides] = useState(() => [
+        {
+            value: ALL_OPTION,
+            label: allCategoryTitle,
+        },
+    ]);
+
+    // Load categories without depending directly on the t function.
     useEffect(() => {
         let isMounted = true;
 
-        CategoryServices.getCategories()
-            .then((res) => {
+        const loadCategories = async () => {
+            try {
+                const res = await CategoryServices.getCategories();
+
                 if (!isMounted) return;
+
+                // Support both a direct array and an API response
+                // shaped like { success: true, data: [...], total: n }.
+                let items = [];
+
+                if (Array.isArray(res)) {
+                    items = res;
+                } else if (Array.isArray(res?.data)) {
+                    items = res.data;
+                } else if (Array.isArray(res?.data?.data)) {
+                    items = res.data.data;
+                }
+
+                const categoryOptions = items
+                    .filter((item) => item && (item.id != null || item._id != null))
+                    .map((item) => ({
+                        value: String(item.id ?? item._id),
+                        label: String(item.title ?? item.name ?? '').trim(),
+                    }))
+                    .filter((item) => item.label.length > 0);
 
                 setSides([
                     {
-                        id: ALL_OPTION,
-                        title: t('searchBar.ti1'),
+                        value: ALL_OPTION,
+                        label: allCategoryTitle,
                     },
-                    ...(Array.isArray(res) ? res : []),
+                    ...categoryOptions,
                 ]);
-            })
-            .catch(() => {
+            } catch (error) {
                 if (!isMounted) return;
+
+                console.error('Không thể tải danh mục:', error);
 
                 setSides([
                     {
-                        id: ALL_OPTION,
-                        title: t('searchBar.ti1'),
+                        value: ALL_OPTION,
+                        label: allCategoryTitle,
                     },
                 ]);
-            });
+            }
+        };
+
+        loadCategories();
 
         return () => {
             isMounted = false;
         };
-    }, [t]);
+    }, [allCategoryTitle]);
 
     const handleRefresh = () => {
         setSearchText('');
@@ -73,7 +107,7 @@ const SearchBar = ({ onSearch }) => {
         setRegion('ALL');
         setVisible(false);
 
-        onSearch({
+        onSearch?.({
             searchText: '',
             searchSides: null,
             maxPrice: null,
@@ -87,7 +121,7 @@ const SearchBar = ({ onSearch }) => {
     };
 
     const handleSearch = () => {
-        onSearch({
+        onSearch?.({
             searchText,
             searchSides: searchSides === ALL_OPTION ? null : searchSides,
             maxPrice,
@@ -118,18 +152,19 @@ const SearchBar = ({ onSearch }) => {
             : `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
     const categorySelect = (
-        <Select
-            showSearch
-            options={sides}
-            value={searchSides}
-            fieldNames={{ value: 'id', label: 'title' }}
-            onChange={setSearchSides}
-            optionFilterProp="title"
-            size="large"
-            className="w-full"
-            placeholder={t('searchBar.ti1')}
-        />
-    );
+    <select
+        value={searchSides}
+        onChange={(event) => setSearchSides(event.target.value)}
+        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-base text-gray-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+        aria-label={allCategoryTitle}
+    >
+        {sides.map((side) => (
+            <option key={side.value} value={side.value}>
+                {side.label}
+            </option>
+        ))}
+    </select>
+);
 
     const regionSelector = (
         <Radio.Group
@@ -143,7 +178,18 @@ const SearchBar = ({ onSearch }) => {
         </Radio.Group>
     );
 
-    const priceFields = (
+    const dateField = (
+        <RangePicker
+            value={dateRange}
+            size="large"
+            format="DD/MM/YYYY"
+            placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
+            onChange={handleDateChange}
+            className="w-full"
+        />
+    );
+
+    const renderPriceFields = () => (
         <>
             <InputNumber
                 value={minPrice}
@@ -171,17 +217,6 @@ const SearchBar = ({ onSearch }) => {
                 aria-label={t('searchBar.ti4')}
             />
         </>
-    );
-
-    const dateField = (
-        <RangePicker
-            value={dateRange}
-            size="large"
-            format="DD/MM/YYYY"
-            placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
-            onChange={handleDateChange}
-            className="w-full"
-        />
     );
 
     const actionButtons = (mobile = false) => (
@@ -218,6 +253,7 @@ const SearchBar = ({ onSearch }) => {
                         <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-500">
                             ROAM · TÌM HÀNH TRÌNH
                         </p>
+
                         <h3 className="mt-1 text-lg font-extrabold text-gray-900">
                             {t('searchBar.ti2')}
                         </h3>
@@ -233,6 +269,7 @@ const SearchBar = ({ onSearch }) => {
                         <label className="mb-2 block text-xs font-semibold text-gray-500">
                             Điểm đến hoặc tên tour
                         </label>
+
                         <Input
                             value={searchText}
                             placeholder={t('searchBar.ti2')}
@@ -247,6 +284,7 @@ const SearchBar = ({ onSearch }) => {
                         <label className="mb-2 block text-xs font-semibold text-gray-500">
                             Danh mục
                         </label>
+
                         {categorySelect}
                     </div>
 
@@ -254,9 +292,7 @@ const SearchBar = ({ onSearch }) => {
                         <label className="mb-2 block text-xs font-semibold text-gray-500">
                             Giá tối thiểu
                         </label>
-                        {priceFields.props
-                            ? null
-                            : null}
+
                         <InputNumber
                             value={minPrice}
                             min={0}
@@ -274,6 +310,7 @@ const SearchBar = ({ onSearch }) => {
                         <label className="mb-2 block text-xs font-semibold text-gray-500">
                             Giá tối đa
                         </label>
+
                         <InputNumber
                             value={maxPrice}
                             min={0}
@@ -291,6 +328,7 @@ const SearchBar = ({ onSearch }) => {
                         <label className="mb-2 block text-xs font-semibold text-gray-500">
                             Khoảng thời gian
                         </label>
+
                         {dateField}
                     </div>
 
@@ -298,6 +336,7 @@ const SearchBar = ({ onSearch }) => {
                         <label className="mb-3 block text-xs font-semibold text-gray-500">
                             Phạm vi tour
                         </label>
+
                         {regionSelector}
                     </div>
 
@@ -343,6 +382,7 @@ const SearchBar = ({ onSearch }) => {
                             <label className="mb-2 block text-xs font-semibold text-gray-500">
                                 Điểm đến hoặc tên tour
                             </label>
+
                             <Input
                                 value={searchText}
                                 placeholder={t('searchBar.ti2')}
@@ -357,6 +397,7 @@ const SearchBar = ({ onSearch }) => {
                             <label className="mb-2 block text-xs font-semibold text-gray-500">
                                 Danh mục
                             </label>
+
                             {categorySelect}
                         </div>
 
@@ -364,6 +405,7 @@ const SearchBar = ({ onSearch }) => {
                             <label className="mb-2 block text-xs font-semibold text-gray-500">
                                 Giá tối thiểu
                             </label>
+
                             <InputNumber
                                 value={minPrice}
                                 min={0}
@@ -381,6 +423,7 @@ const SearchBar = ({ onSearch }) => {
                             <label className="mb-2 block text-xs font-semibold text-gray-500">
                                 Giá tối đa
                             </label>
+
                             <InputNumber
                                 value={maxPrice}
                                 min={0}
@@ -398,6 +441,7 @@ const SearchBar = ({ onSearch }) => {
                             <label className="mb-2 block text-xs font-semibold text-gray-500">
                                 Khoảng thời gian
                             </label>
+
                             {dateField}
                         </div>
 
@@ -405,6 +449,7 @@ const SearchBar = ({ onSearch }) => {
                             <label className="mb-3 block text-xs font-semibold text-gray-500">
                                 Phạm vi tour
                             </label>
+
                             {regionSelector}
                         </div>
 

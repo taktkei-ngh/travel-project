@@ -26,7 +26,11 @@ const DetailSection = ({...data}) => {
     // ]
     const [quantity, setQuantity] =  useState('');
     const [orderInfo, setOrderInfo] = useState('');
-    const images = data.images;
+    const images = Array.isArray(data?.images)
+    ? data.images
+    : data?.image
+        ? [data.image]
+        : [];
     const price = data.priceAdults;
     const navigate = useNavigate();
 

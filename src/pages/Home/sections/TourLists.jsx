@@ -87,14 +87,19 @@ export const TourLists = () => {
                     : Array.isArray(res)
                         ? res
                         : [];
+const visibleTours = tourData
+    .filter(
+        (tour) =>
+            !tour.status || tour.status === 'PUBLISHED'
+    )
+    .map((tour) => ({
+        ...tour,
+        id: tour.id ?? tour._id,
+    }));
 
-                const published = tourData.filter(
-                    (tour) => tour.status === 'PUBLISHED'
-                );
-
-                if (isMounted) {
-                    setTours(published);
-                }
+if (isMounted) {
+    setTours(visibleTours);
+}
             } catch (error) {
                 console.error('Không thể tải danh sách tour:', error);
 

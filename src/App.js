@@ -15,6 +15,7 @@ function App() {
         const { i18n } = useTranslation();
 
         useEffect(() => {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             document.title = webConfig.defaultTitle;
         }, []);
 

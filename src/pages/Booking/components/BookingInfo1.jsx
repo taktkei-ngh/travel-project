@@ -245,7 +245,7 @@ export const BookingInfo1 = ({ data }) => {
             bookerEmail: email || '',
             bookerPhoneNumber: phone || '',
             bookerAddress: address || '',
-            paymentMethod: 'VNPAY',
+            paymentMethod: 'MOMO',
             specialRequests: note || 'NO',
             totalAmount: finalPrice,
             voucherCode: voucherValid ? voucher : null,
@@ -261,7 +261,19 @@ export const BookingInfo1 = ({ data }) => {
         };
 
         try {
-            const bookingResponse = await BookingServices.bookTourByTourDetailId(data.id, body);
+           const tourDetailId =
+    data?._id || data?.id || data?.tourDetailId || id;
+
+if (!tourDetailId) {
+    console.error('Không tìm thấy ID lịch khởi hành:', data);
+    alert('Không tìm thấy lịch khởi hành. Vui lòng chọn lại ngày khởi hành.');
+    return;
+}
+
+const bookingResponse = await BookingServices.bookTourByTourDetailId(
+    tourDetailId,
+    body
+);
             const bookingData = bookingResponse.data;
             setBooking(bookingData);
 

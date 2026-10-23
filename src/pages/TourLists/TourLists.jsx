@@ -1,5 +1,4 @@
-
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pagination, Skeleton } from 'antd';
 import { motion } from 'framer-motion';
 import {
@@ -202,17 +201,17 @@ export const TourLists = ({ titleType }) => {
     };
 
     // Giữ callback tương thích với Aside và SearchFilterBar.
-    const handleFilterChange = (nextQuery) => {
-        setQuery((previous) => {
-            if (typeof nextQuery === 'function') {
-                return nextQuery(previous);
-            }
+   const handleFilterChange = useCallback((nextQuery) => {
+    setQuery((previous) => {
+        if (typeof nextQuery === 'function') {
+            return nextQuery(previous);
+        }
 
-            return nextQuery;
-        });
+        return nextQuery;
+    });
 
-        setCurrentPage(1);
-    };
+    setCurrentPage(1);
+}, []);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);

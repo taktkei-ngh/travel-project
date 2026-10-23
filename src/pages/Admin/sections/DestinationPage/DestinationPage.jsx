@@ -19,17 +19,31 @@ export const DestinationPage = () => {
         fetchDestinations();
     }, []);
 
-    const fetchDestinations = async () => {
-        setLoading(true);
-        try {
-            const response = await DestinationServices.getAll();
-            setDestinations(response || []);
-        } catch (error) {
-            message.error('Không thể tải danh sách điểm đến!');
-        } finally {
-            setLoading(false);
-        }
-    };
+   const fetchDestinations = async () => {
+    setLoading(true);
+
+    try {
+        const response = await DestinationServices.getAll();
+
+        const items = Array.isArray(response)
+            ? response
+            : Array.isArray(response?.data)
+                ? response.data
+                : [];
+
+        const normalizedDestinations = items.map((item) => ({
+            ...item,
+            id: item.id || item._id,
+        }));
+
+        setDestinations(normalizedDestinations);
+    } catch (error) {
+        console.error('Error fetching destinations:', error);
+        message.error('Không thể tải danh sách điểm đến!');
+    } finally {
+        setLoading(false);
+    }
+};
 
     // Xử lý thêm destination
     const handleAdd = async (values) => {

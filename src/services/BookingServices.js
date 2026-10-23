@@ -2,171 +2,209 @@ import sha256 from 'crypto-js/sha256';
 import config from '~/config';
 import axiosConfig from '~/config/axiosConfig';
 
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('accessToken');
+
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 const BookingServices = {
-	checkOut: async (params, token) => {
-		try {
-			const token = localStorage.getItem('accessToken');
-			const redirectTo = window.location.origin;
-			const response = await axiosConfig.get(config.api.booking + '/checkout', {
-				params: {
-					...params,
-					redirectTo: redirectTo,
-				},
-				headers: {
-					'Authorization': 'Bearer ' + token,
-				},
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
-	returnCheckout: async () => {
-		try {
-			const response = await axiosConfig.get(config.api.booking + `/vnpay-payment-return`);
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+    checkOut: async (params) => {
+        try {
+            const redirectTo = window.location.origin;
 
-//     NGHIEP VU BOOK TOUR
-	getInfoMonth: async (id) => {
-		try {
-			const resp = await axiosConfig.get(config.api.tourDetail + `/month/${id}`);
-			return resp.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+            const response = await axiosConfig.get(
+                `${config.api.booking}/checkout`,
+                {
+                    params: {
+                        ...params,
+                        redirectTo,
+                    },
+                    headers: getAuthHeaders(),
+                }
+            );
 
-	getInfoDay: async (params) => {
-		try {
-			const resp = await axiosConfig.get(config.api.tourDetail + '/day', { params });
-			return resp.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+            return response.data;
+        } catch (error) {
+            console.error('Không thể khởi tạo thanh toán:', error);
+            throw error;
+        }
+    },
 
-	bookTourByTourDetailId: async (id, body) => {
-		try {
-			const token = localStorage.getItem('accessToken');
-			const timestamp = new Date().getTime();
-			const dataToHash = JSON.stringify({ ...body, timestamp });
-			const idempotencyKey = sha256(dataToHash).toString();
-			const resp = await axiosConfig.post(config.api.booking + `/tour/${id}`,
-				body,
-				{
-					headers: {
-						'Authorization': 'Bearer ' + token,
-						'Content-Type': 'application/json',
-						'X-Idempotency-Key': idempotencyKey,
-					},
-				},
-			);
-			return resp.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
-	// getBookingByUser: async (token) => {
-	//     try{
-	//         const response = await axiosConfig.get(config.api.booking + '/book/user', {
-	//             headers: {
-	//                 'Authorization': 'Bearer ' + token,
-	//             },
-	//         });
-	//         return response.data;
-	//     }catch (error) {
-	//         console.error('Error:', error);
-	//         return Promise.reject(error);
-	//     }
-	// },
-	getBookingList: async (token) => {
-		try {
-			const response = await axiosConfig.get(config.api.booking + '/book/user', {
-				headers: {
-					'Authorization': 'Bearer ' + token,
-				},
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+    returnCheckout: async () => {
+        try {
+            const response = await axiosConfig.get(
+                `${config.api.booking}/vnpay-payment-return`
+            );
 
-	cancelBooking: async (id, body) => {
-		const token = localStorage.getItem('accessToken');
-		try {
-			const response = await axiosConfig.post(config.api.booking + `/cancel/${id}`, body, {
-				headers: {
-					'Authorization': 'Bearer ' + token,
-				},
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+            return response.data;
+        } catch (error) {
+            console.error('Không thể nhận kết quả thanh toán:', error);
+            throw error;
+        }
+    },
 
-	cancelBookingAd: async (id, body) => {
-		const token = localStorage.getItem('accessToken');
-		try {
-			const response = await axiosConfig.post(config.api.booking + `/ad/cancel/${id}`, body, {
-				headers: {
-					'Authorization': 'Bearer ' + token,
-				},
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+    // Lấy các tháng có lịch khởi hành của tour.
+    getInfoMonth: async (id) => {
+        try {
+            const response = await axiosConfig.get(
+                `${config.api.tourDetail}/month/${id}`
+            );
 
-	getAll: async () => {
-		const token = localStorage.getItem('accessToken');
-		try {
-			const response = await axiosConfig.get(config.api.booking + '/all', {
-				headers: {
-					'Authorization': 'Bearer ' + token,
-				},
-			});
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+            return response.data;
+        } catch (error) {
+            console.error('Không thể tải tháng khởi hành:', error);
+            throw error;
+        }
+    },
 
-	getAllByStatus: async (status) => {
-		try {
-			const response = await axiosConfig.get(config.api.booking + `/status?status=${status}`);
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+    // Lấy các ngày khởi hành trong tháng.
+    getInfoDay: async (params) => {
+        try {
+            const response = await axiosConfig.get(
+                `${config.api.tourDetail}/day`,
+                { params }
+            );
 
-	getBookingByBookingId: async (id) => {
-		try {
-			const response = await axiosConfig.get(config.api.booking + `/book/${id}`);
-			return response.data;
-		} catch (error) {
-			console.error('Error:', error);
-			return Promise.reject(error);
-		}
-	},
+            return response.data;
+        } catch (error) {
+            console.error('Không thể tải ngày khởi hành:', error);
+            throw error;
+        }
+    },
 
+    // Đặt tour theo ID chi tiết lịch khởi hành.
+    bookTourByTourDetailId: async (id, body) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const timestamp = Date.now();
+
+            const dataToHash = JSON.stringify({
+                ...body,
+                timestamp,
+            });
+
+            const idempotencyKey = sha256(dataToHash).toString();
+
+            const response = await axiosConfig.post(
+                `${config.api.booking}/tour/${id}`,
+                body,
+                {
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json',
+                        'X-Idempotency-Key': idempotencyKey,
+                        ...(token
+                            ? { Authorization: `Bearer ${token}` }
+                            : {}),
+                    },
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể đặt tour:', error);
+            throw error;
+        }
+    },
+
+    getBookingList: async (token) => {
+        try {
+            const authToken =
+                token || localStorage.getItem('accessToken');
+
+            const response = await axiosConfig.get(
+                `${config.api.booking}/book/user`,
+                {
+                    headers: authToken
+                        ? { Authorization: `Bearer ${authToken}` }
+                        : {},
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể tải danh sách booking:', error);
+            throw error;
+        }
+    },
+
+    cancelBooking: async (id, body) => {
+        try {
+            const response = await axiosConfig.post(
+                `${config.api.booking}/cancel/${id}`,
+                body,
+                { headers: getAuthHeaders() }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể hủy booking:', error);
+            throw error;
+        }
+    },
+
+    cancelBookingAd: async (id, body) => {
+        try {
+            const response = await axiosConfig.post(
+                `${config.api.booking}/ad/cancel/${id}`,
+                body,
+                { headers: getAuthHeaders() }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể hủy booking quản trị:', error);
+            throw error;
+        }
+    },
+
+    getAll: async () => {
+        try {
+            const response = await axiosConfig.get(
+                `${config.api.booking}/all`,
+                { headers: getAuthHeaders() }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể tải tất cả booking:', error);
+            throw error;
+        }
+    },
+
+    getAllByStatus: async (status) => {
+        try {
+            const response = await axiosConfig.get(
+                `${config.api.booking}/status`,
+                {
+                    params: { status },
+                    headers: getAuthHeaders(),
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể lọc booking theo trạng thái:', error);
+            throw error;
+        }
+    },
+
+    getBookingByBookingId: async (id) => {
+        try {
+            const response = await axiosConfig.get(
+                `${config.api.booking}/book/${id}`,
+                { headers: getAuthHeaders() }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Không thể tải chi tiết booking:', error);
+            throw error;
+        }
+    },
 };
 
 export default BookingServices;

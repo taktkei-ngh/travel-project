@@ -1,6 +1,9 @@
 Sau khi Pull về lần đầu,
-- Chạy lệnh `npm install` để cài đặt các thư viện cần thiết.
-- Chạy lệnh `npm start` để chạy project.
+- Chạy lệnh cd cd C:\Users\Admin\Downloads\ROAM\pacific-ui
+npm start
+ để cài đặt các thư viện cần thiết. Backend
+- Chạy lệnh cd C:\Users\Admin\Downloads\ROAM\pacific-ui
+npm start để chạy project.  Frontend
 - Mở trình duyệt và truy cập vào địa chỉ `http://localhost:3000` để xem project.
 - Để build project, chạy lệnh `npm run build`.
 - Để deploy project, chạy lệnh `npm run deploy`.
@@ -17,4 +20,5 @@ Sau khi Pull về lần đầu,
 Commit các file đã thay đổi
 chọn branch để push -> "FrontEnd"
 rồi push lên branch frontend
+voucher free : 
 by Kei

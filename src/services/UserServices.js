@@ -88,21 +88,38 @@ const UserServices = {
     updateUser: async (body) => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axiosConfig.post(config.api.user + `/update-profile`, body, {
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'multipart/form-data',
+            const payload = {};
+
+            if (body instanceof FormData) {
+                for (const [key, value] of body.entries()) {
+                    // Tam thoi bo qua file avatar; cac truong van ban duoc luu.
+                    if (typeof value === 'string') {
+                        payload[key] = value;
+                    }
                 }
-            });
+            } else if (body && typeof body === 'object') {
+                Object.assign(payload, body);
+            }
+
+            const response = await axiosConfig.post(
+                config.api.user + '/update-profile',
+                payload,
+                {
+                    headers: token
+                        ? { Authorization: `Bearer ${token}` }
+                        : {},
+                }
+            );
+
             return response.data;
         } catch (error) {
-            console.error('Lỗi khi cập nhật user:', error);
-            return Promise.reject(error);
+            console.error(
+                'Loi khi cap nhat user:',
+                error.response?.data || error.message
+            );
+            throw error;
         }
     },
-
-
-    // Cập nhật trạng thái (active/inactive)
     updateUserStatus: async (id, status) => {
         try {
             const response = await axiosConfig.patch(config.api.user + `/updateStatus/${id}`, { status });

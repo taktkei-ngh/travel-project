@@ -1,107 +1,155 @@
-import { Button, DatePicker, Input, message, Select } from 'antd';
+
+import { Button, DatePicker, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
 import CategoryServices from '~/services/CategoryServices';
 import { useTranslation } from 'react-i18next';
 
-export const SearchBar = ({ onSearch, query }) => {
-    const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker;
+const ALL_OPTION = '__ALL__';
+
+export const SearchBar = ({ onSearch, query = {} }) => {
     const { t } = useTranslation();
-    const [searchText, setSearchText] = useState(query.searchText || '');
-    const [sides, setSides] = useState([]);
-    const [startDate, setStartDate] = useState(query.startDate || null);
-    const [endDate, setEndDate] = useState(query.endDate || null);
-    const [searchSides, setSearchSides] = useState(query.searchPrices || null);
+    const allCategoryTitle = t('search.ti1');
+
+    const [searchText, setSearchText] = useState(query.searchText ?? '');
+    const [searchSides, setSearchSides] = useState(
+        query.searchSides == null ? ALL_OPTION : String(query.searchSides)
+    );
+    const [startDate, setStartDate] = useState(query.startDate ?? null);
+    const [endDate, setEndDate] = useState(query.endDate ?? null);
+    const [sides, setSides] = useState([
+        { value: ALL_OPTION, label: allCategoryTitle },
+    ]);
 
     useEffect(() => {
-        CategoryServices.getCategories()
-            .then((res) => {
-                // Đảm bảo dữ liệu từ API có cấu trúc đúng
-                const formattedSides = [
-                    {
-                        id: null, // Giá trị mặc định cho "All"
-                        title: "Tất cả khu vực" // "All" hoặc giá trị dịch
-                    },
-                    ...res.map(category => ({
-                        id: category.id, // Đảm bảo có id
-                        title: category.title || category.name || 'Unknown', // Đảm bảo có title
-                    })),
-                ];
-                setSides(formattedSides);
-            })
-            .catch((err) => {
-                console.log('Error fetching categories:', err);
+        let isMounted = true;
+
+        const loadCategories = async () => {
+            try {
+                const res = await CategoryServices.getCategories();
+
+                if (!isMounted) return;
+
+                const items = Array.isArray(res)
+                    ? res
+                    : Array.isArray(res?.data)
+                        ? res.data
+                        : Array.isArray(res?.data?.data)
+                            ? res.data.data
+                            : [];
+
+                const categoryOptions = items
+                    .filter((item) => item && (item.id != null || item._id != null))
+                    .map((item) => ({
+                        value: String(item.id ?? item._id),
+                        label: String(item.title ?? item.name ?? '').trim(),
+                    }))
+                    .filter((item) => item.label.length > 0);
+
                 setSides([
-                    {
-                        id: null,
-                        title: "Tất cả khu vực"
-                    },
-                ]); // Fallback nếu API lỗi
-            });
-    }, [t]); // Thêm t vào dependency để cập nhật khi ngôn ngữ thay đổi
+                    { value: ALL_OPTION, label: allCategoryTitle },
+                    ...categoryOptions,
+                ]);
+            } catch (error) {
+                if (!isMounted) return;
+
+                console.error('Không thể tải danh mục tìm kiếm:', error);
+                setSides([
+                    { value: ALL_OPTION, label: allCategoryTitle },
+                ]);
+            }
+        };
+
+        loadCategories();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [allCategoryTitle]);
 
     const handleSearch = () => {
         if (startDate && endDate && startDate > endDate) {
-            message.error('Ngày bắt đầu không thể lớn hơn ngày kết thúc');
+            message.error('Ngày bắt đầu không thể sau ngày kết thúc');
             return;
         }
-        onSearch({ searchText, searchSides, startDate, endDate });
+
+        onSearch?.({
+            searchText,
+            searchSides: searchSides === ALL_OPTION ? null : searchSides,
+            startDate,
+            endDate,
+        });
     };
 
     const handleRefresh = () => {
         setSearchText('');
-        setSearchSides(null);
+        setSearchSides(ALL_OPTION);
         setStartDate(null);
         setEndDate(null);
-        onSearch({ searchText: '', searchSides: null, startDate: null, endDate: null });
+
+        onSearch?.({
+            searchText: '',
+            searchSides: null,
+            startDate: null,
+            endDate: null,
+        });
+
         message.success('Đã làm mới tìm kiếm');
     };
+
+    const handleDateChange = (dates) => {
+        if (dates?.[0] && dates?.[1]) {
+            setStartDate(dates[0].format('YYYY-MM-DD'));
+            setEndDate(dates[1].format('YYYY-MM-DD'));
+        } else {
+            setStartDate(null);
+            setEndDate(null);
+        }
+    };
+
     return (
-        <>
-            <div
-                className={
-                    'hidden md:flex lg:flex lg:flex-row md:flex-row justify-center mx-auto items-center bg-gray-100 shadow-xl bg-blend-overlay mt-4 gap-4 p-4 w-fit rounded-lg'
-                }
+        <div className="mx-auto mt-4 hidden w-fit flex-row items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 shadow-xl md:flex lg:flex">
+            <Input
+                value={searchText}
+                placeholder={t('search.ti2')}
+                allowClear
+                onChange={(e) => setSearchText(e.target.value)}
+                className="w-96 rounded-lg font-bold"
+                size="large"
+            />
+
+            <select
+                value={searchSides}
+                onChange={(e) => setSearchSides(e.target.value)}
+                aria-label={allCategoryTitle}
+                className="h-10 w-96 rounded-lg border border-gray-200 bg-white px-3 font-bold text-gray-800 outline-none focus:border-orange-400"
             >
-                <Input
-                    placeholder={t('search.ti2')}
-                    allowClear
-                    onChange={(e) => setSearchText(e.target.value)}
-                    rootClassName={'w-96 font-bold rounded-lg'}
-                    size={'large'}
-                />
-                <Select
-                    showSearch
-                    options={sides}
-                    size={'large'}
-                    value={searchSides} // Giá trị được chọn
-                    fieldNames={{ value: 'id', label: 'title' }}
-                    onChange={(value) => setSearchSides(value)} // Cập nhật searchSides
-                    optionLabelProp={'title'}
-                    className={'w-96 font-bold'}
-                    placeholder={t('search.ti1')} // Placeholder là "All"
-                />
-                <RangePicker
-                    size={'large'}
-                    format={'DD/MM/YYYY'}
-                    placeholder={['Ngày bắt đầu', 'Ngày kết thúc']} // Dịch placeholder
-                    onChange={(dates) => {
-                        if (dates) {
-                            setStartDate(dates[0].format('YYYY-MM-DD'));
-                            setEndDate(dates[1].format('YYYY-MM-DD'));
-                        } else {
-                            setStartDate(null);
-                            setEndDate(null);
-                        }
-                    }}
-                    className={'w-96 font-bold'}
-                />
-                <button
-                    className={'bg-orange-500 text-white px-6 py-2 rounded-md'}
-                    onClick={handleSearch}
-                >
-                    {t('search.ti3')}
-                </button>
-            </div>
-        </>
+                {sides.map((side) => (
+                    <option key={side.value} value={side.value}>
+                        {side.label}
+                    </option>
+                ))}
+            </select>
+
+            <RangePicker
+                size="large"
+                format="DD/MM/YYYY"
+                placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
+                onChange={handleDateChange}
+                className="w-96 font-bold"
+            />
+
+            <Button
+                type="primary"
+                onClick={handleSearch}
+                className="!bg-orange-500"
+            >
+                {t('search.ti3')}
+            </Button>
+
+            <Button onClick={handleRefresh}>
+                Xóa bộ lọc
+            </Button>
+        </div>
     );
 };

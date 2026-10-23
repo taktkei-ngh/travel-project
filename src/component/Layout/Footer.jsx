@@ -205,18 +205,19 @@ const Footer = () => {
                         {t('footer.ti10')}
                     </h3>
 
-                    <ul className="space-y-3.5">
-                        {experienceLinks.map((label, index) => (
-                            <li key={`${label}-${index}`}>
-                                <a href="#" className={linkClass}>
-                                    <FaArrowRight
-                                        className="shrink-0 text-[10px] text-orange-300 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
-                                    />
-                                    <span>{label}</span>
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                  <ul className="space-y-3.5">
+    {experienceLinks.map((label, index) => (
+        <li key={`${label}-${index}`}>
+            <button
+                type="button"
+                className={`w-full text-left flex items-center ${linkClass}`}
+            >
+                <FaArrowRight className="shrink-0 text-[10px] text-orange-300 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 mr-2" />
+                <span>{label}</span>
+            </button>
+        </li>
+    ))}
+</ul>
                 </motion.div>
 
                 {/* Contact information */}

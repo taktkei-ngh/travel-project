@@ -68,37 +68,37 @@ const About = () => {
 
   const testimonials = [
     {
-      name: "Nguyá»…n DÆ°Æ¡ng ThiÃªn LÃ½",
+      name: "Nguyen Gia Huy",
       review: t("about.ti17"),
       rating: 5,
       avatar:'/img/about/about.jpg'
     },
     {
-      name: "Tráº§n Thanh TÃ¢m",
+      name: "Dau Hoang Dung",
       review: t("about.ti18"),
       rating: 4.5,
       avatar:'/img/about/about.jpg'
     },
     {
-      name: "LÃª VÄƒn Chung",
+      name: "Tran Huy Anh",
       review: t("about.ti19"),
       rating: 5,
       avatar:'/img/about/about.jpg'
     },
     {
-      name: "Pháº¡m Thu HÆ°á»ng",
+      name: "Pham Hoang Phuong Thao",
       review: t("about.ti20"),
       rating: 4.8,
       avatar:'/img/about/about.jpg'
     },
     {
-      name: "BÃ¹i Quá»‘c Huy",
+      name: "Tran Nguyen Anh Huy",
       review: t("about.ti21"),
       rating: 5,
       avatar:'/img/about/about.jpg'
     },
     {
-      name: "Nguyá»…n ÄÃ¬nh Tuáº¥n",
+      name: "Nguyen Anh Tuan",
       review: t("about.ti22"),
       rating: 5,
       avatar:'/img/about/about.jpg'
@@ -325,8 +325,15 @@ const About = () => {
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="relative z-10 px-6">
           <h2 className="text-5xl font-bold mb-4">{t("about.ti39")}</h2>
-            <p className="text-lg mb-6">{t("about.ti40")}</p>
-            <a href="#" className="inline-block bg-yellow-500 text-black py-3 px-8 rounded-lg text-lg font-semibold hover:bg-yellow-600 transition duration-300">{t("about.ti41")}</a>
+          <p className="text-lg mb-6">{t("about.ti40")}</p>
+
+<button
+    type="button"
+    onClick={() => {}}
+    className="inline-block bg-yellow-500 text-black py-3 px-8 rounded-lg text-lg font-semibold hover:bg-yellow-600 transition duration-300 cursor-pointer"
+>
+    {t("about.ti41")}
+</button>
         </div>
     </section>
     </div>
